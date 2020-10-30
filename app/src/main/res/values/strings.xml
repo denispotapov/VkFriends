@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">VK Messenger</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="log_in">Войти</string>
+    <string name="authorization">Авторизация</string>
+    <string name="friend_list">Cписок друзей</string>
+</resources>
