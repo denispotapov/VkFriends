@@ -1,0 +1,3 @@
+package com.example.vkmessenger
+
+const val token = "b3d81159ae51b7c4d43e437ad7c6ccada088e3858a62b30080d1e89389be2265d6ec14ab5a45fb4164242"
