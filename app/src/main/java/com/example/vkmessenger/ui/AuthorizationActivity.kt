@@ -1,4 +1,4 @@
-package com.example.vkmessenger
+package com.example.vkmessenger.ui
 
 import android.content.Context
 import android.content.Intent
@@ -6,23 +6,28 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.example.vkmessenger.R
+import com.example.vkmessenger.ResultFriends
+import com.example.vkmessenger.ResultUser
+import com.example.vkmessenger.VkApi
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
+import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_authorization.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 
-open class AuthorizationActivity : AppCompatActivity() {
+class AuthorizationActivity : DaggerAppCompatActivity() {
 
-    private lateinit var vkApi: VkApi
+    @Inject
+    lateinit var vkApi: VkApi
     private var tokenVK = ""
     private val TAG = "TAG"
 
@@ -31,25 +36,22 @@ open class AuthorizationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_authorization)
 
         loadToken()
+        loadUserInfo()
+        friendList.setOnClickListener {
+            getFriends()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
         if (tokenVK == "") {
             VK.login(
                 this,
                 arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.FRIENDS, VKScope.OFFLINE)
             )
-        }
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.vk.com/method/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        vkApi = retrofit.create(VkApi::class.java)
-
-        logIn.setOnClickListener {
+        } else {
             getUserInfo()
-            //VK.logout()
-            // getFriendOnline()
-            //getFriends()
+            friendList.visibility = View.VISIBLE
         }
     }
 
@@ -60,9 +62,22 @@ open class AuthorizationActivity : AppCompatActivity() {
 
     private fun loadToken() {
         val sPref = getPreferences(Context.MODE_PRIVATE)
-        val savedText = sPref.getString("key", "")
-        if (savedText != null) {
-            tokenVK = savedText
+        val savedToken = sPref.getString("key", "")
+        if (savedToken != null) {
+            tokenVK = savedToken
+        }
+    }
+    private fun loadUserInfo() {
+
+        val sPref = getPreferences(Context.MODE_PRIVATE)
+        val savedFirst = sPref.getString("fistName", "")
+        val savedLast = sPref.getString("lastName", "")
+        val savedPhoto = sPref.getString("image", "")
+        if (savedFirst != null && savedLast != null && savedPhoto != null) {
+            textView.text = "$savedFirst $savedLast"
+            Glide.with(this@AuthorizationActivity)
+                .load(savedPhoto)
+                .into(imageView)
         }
     }
 
@@ -82,8 +97,15 @@ open class AuthorizationActivity : AppCompatActivity() {
                 textView.text =
                     (userInfo!!.response[0].first_name + " " + userInfo.response[0].last_name)
                 Glide.with(this@AuthorizationActivity)
-                    .load(userInfo.response[0].photo_50)
+                    .load(userInfo.response[0].photo_100)
                     .into(imageView)
+
+                val sPref = getPreferences(Context.MODE_PRIVATE)
+                val editPref = sPref.edit()
+                editPref.putString("fistName", userInfo.response[0].first_name)
+                editPref.putString("lastName", userInfo.response[0].last_name)
+                editPref.putString("image", userInfo.response[0].photo_100)
+                editPref.apply()
             }
 
             override fun onFailure(call: Call<ResultUser>, t: Throwable) {
@@ -93,31 +115,8 @@ open class AuthorizationActivity : AppCompatActivity() {
         })
     }
 
-    /*private fun getFriendOnline() {
-        val call = vkApi.getFriendsOnline()
-        call.enqueue(object : Callback<ResultFriendsOnline> {
-            override fun onResponse(
-                call: Call<ResultFriendsOnline>,
-                response: Response<ResultFriendsOnline>
-            ) {
-                if (!response.isSuccessful) {
-                    Log.d(TAG, "Code" + response.code())
-                    return
-                }
-                val friendsOnline = response.body()
-                Log.d(TAG, "onResponse: $friendsOnline")
-
-            }
-
-            override fun onFailure(call: Call<ResultFriendsOnline>, t: Throwable) {
-                Log.d(TAG, "onFailure: ${t.message}")
-            }
-
-        })
-    }
-
     private fun getFriends() {
-        val call = vkApi.getFriends()
+        val call = vkApi.getFriends(tokenVK)
         call.enqueue(object : Callback<ResultFriends> {
             override fun onResponse(
                 call: Call<ResultFriends>,
@@ -127,8 +126,8 @@ open class AuthorizationActivity : AppCompatActivity() {
                     Log.d(TAG, "Code" + response.code())
                     return
                 }
-                val friendsOnline = response.body()
-                Log.d(TAG, "onResponse: $friendsOnline")
+                val friends = response.body()
+                Log.d(TAG, "onResponse: $friends")
 
             }
 
@@ -137,20 +136,18 @@ open class AuthorizationActivity : AppCompatActivity() {
             }
 
         })
-    }*/
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 tokenVK = token.accessToken
                 val sPref = getPreferences(Context.MODE_PRIVATE)
-                val ed = sPref.edit()
-                ed.putString("key", tokenVK)
-                ed.apply()
-
+                val editPref = sPref.edit()
+                editPref.putString("key", tokenVK)
+                editPref.apply()
 
                 Log.d(TAG, "onLogin: $tokenVK")
-                //textView.text = tokenVK
                 Toast.makeText(
                     this@AuthorizationActivity,
                     "Вы успешно авторизовались",

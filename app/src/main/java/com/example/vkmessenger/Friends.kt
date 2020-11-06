@@ -1,5 +1,5 @@
 package com.example.vkmessenger
 
 
-data class Friends(val items: List<Int>?) {
+data class Friends(val items: List<UserInfo>?) {
 }
