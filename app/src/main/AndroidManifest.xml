@@ -12,11 +12,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VkMessenger">
-        <activity android:name=".ui.AuthorizationActivity">
+        <activity android:name=".ui.friends.FriendsActivity"></activity>
+        <activity android:name=".ui.authorization.AuthorizationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
+
 </manifest>

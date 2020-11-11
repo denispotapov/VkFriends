@@ -1,4 +1,4 @@
-package com.example.vkmessenger.ui
+package com.example.vkmessenger.ui.authorization
 
 import android.content.Context
 import android.content.Intent
@@ -10,9 +10,9 @@ import android.view.View
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.R
-import com.example.vkmessenger.ResultFriends
 import com.example.vkmessenger.ResultUser
-import com.example.vkmessenger.VkApi
+import com.example.vkmessenger.network.VkApi
+import com.example.vkmessenger.ui.friends.FriendsActivity
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
@@ -38,8 +38,10 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
         loadToken()
         loadUserInfo()
         friendList.setOnClickListener {
-            getFriends()
+            val intent = Intent(this, FriendsActivity::class.java)
+            startActivity(intent)
         }
+
     }
 
     override fun onResume() {
@@ -61,12 +63,14 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     }
 
     private fun loadToken() {
-        val sPref = getPreferences(Context.MODE_PRIVATE)
+        //val sPref = getPreferences(Context.MODE_PRIVATE)
+        val sPref = getSharedPreferences("token", Context.MODE_PRIVATE)
         val savedToken = sPref.getString("key", "")
         if (savedToken != null) {
             tokenVK = savedToken
         }
     }
+
     private fun loadUserInfo() {
 
         val sPref = getPreferences(Context.MODE_PRIVATE)
@@ -82,67 +86,46 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     }
 
     private fun getUserInfo() {
-        val call = vkApi.getUserInfo(tokenVK)
-        call.enqueue(object : Callback<ResultUser> {
-            override fun onResponse(
-                call: Call<ResultUser>,
-                response: Response<ResultUser>
-            ) {
-                if (!response.isSuccessful) {
-                    Log.d(TAG, "Code" + response.code())
-                    return
+            val call = vkApi.getUserInfo(tokenVK)
+            call.enqueue(object : Callback<ResultUser> {
+                override fun onResponse(
+                    call: Call<ResultUser>,
+                    response: Response<ResultUser>
+                ) {
+                    if (!response.isSuccessful) {
+                        Log.d(TAG, "Code" + response.code())
+                        return
+                    }
+                    val userInfo = response.body()
+                    Log.d(TAG, "onResponse: $userInfo")
+                    textView.text =
+                        (userInfo!!.response[0].first_name + " " + userInfo.response[0].last_name)
+                    Glide.with(this@AuthorizationActivity)
+                        .load(userInfo.response[0].photo_100)
+                        .into(imageView)
+
+                    val sPref = getPreferences(MODE_PRIVATE)
+                    val editPref = sPref.edit()
+                    editPref.putString("fistName", userInfo.response[0].first_name)
+                    editPref.putString("lastName", userInfo.response[0].last_name)
+                    editPref.putString("image", userInfo.response[0].photo_100)
+                    editPref.apply()
                 }
-                val userInfo = response.body()
-                Log.d(TAG, "onResponse: $userInfo")
-                textView.text =
-                    (userInfo!!.response[0].first_name + " " + userInfo.response[0].last_name)
-                Glide.with(this@AuthorizationActivity)
-                    .load(userInfo.response[0].photo_100)
-                    .into(imageView)
 
-                val sPref = getPreferences(Context.MODE_PRIVATE)
-                val editPref = sPref.edit()
-                editPref.putString("fistName", userInfo.response[0].first_name)
-                editPref.putString("lastName", userInfo.response[0].last_name)
-                editPref.putString("image", userInfo.response[0].photo_100)
-                editPref.apply()
-            }
-
-            override fun onFailure(call: Call<ResultUser>, t: Throwable) {
-                Log.d(TAG, "onFailure: ${t.message}")
-            }
-
-        })
-    }
-
-    private fun getFriends() {
-        val call = vkApi.getFriends(tokenVK)
-        call.enqueue(object : Callback<ResultFriends> {
-            override fun onResponse(
-                call: Call<ResultFriends>,
-                response: Response<ResultFriends>
-            ) {
-                if (!response.isSuccessful) {
-                    Log.d(TAG, "Code" + response.code())
-                    return
+                override fun onFailure(call: Call<ResultUser>, t: Throwable) {
+                    Log.d(TAG, "onFailure: ${t.message}")
                 }
-                val friends = response.body()
-                Log.d(TAG, "onResponse: $friends")
 
-            }
+            })
 
-            override fun onFailure(call: Call<ResultFriends>, t: Throwable) {
-                Log.d(TAG, "onFailure: ${t.message}")
-            }
-
-        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 tokenVK = token.accessToken
-                val sPref = getPreferences(Context.MODE_PRIVATE)
+                //val sPref = getPreferences(Context.MODE_PRIVATE)
+                val sPref = getSharedPreferences("token", Context.MODE_PRIVATE)
                 val editPref = sPref.edit()
                 editPref.putString("key", tokenVK)
                 editPref.apply()
