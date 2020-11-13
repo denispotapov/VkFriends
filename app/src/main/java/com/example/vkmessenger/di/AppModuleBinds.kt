@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import com.example.vkmessenger.FriendsDefaultRepository
 import com.example.vkmessenger.FriendsRepository
+import com.example.vkmessenger.local.FriendRoomDataSource
+import com.example.vkmessenger.local.FriendsLocalDataSource
 import com.example.vkmessenger.network.FriendsFromVK
 import com.example.vkmessenger.network.LoadFriendsRetrofit
 import dagger.Binds
@@ -20,6 +22,9 @@ abstract class AppModuleBinds {
 
     @Binds
     abstract fun bindFriendsFromVK(loadFriendsRetrofit: LoadFriendsRetrofit): FriendsFromVK
+
+    @Binds
+    abstract fun bindFriendsLocalDataSource(friendsRoomDataSource: FriendRoomDataSource): FriendsLocalDataSource
 
     @Binds
     abstract fun bindFriendsRepository(friendsDefaultRepository: FriendsDefaultRepository): FriendsRepository

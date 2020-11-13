@@ -5,5 +5,7 @@
     <string name="user_info">User Info</string>
     <string name="authorization">Авторизация</string>
     <string name="friend_list">Cписок друзей</string>
+    <string name="first_name">Имя</string>
+    <string name="last_name">Фамилия</string>
     <integer name="com_vk_sdk_AppId">7645399</integer>
 </resources>

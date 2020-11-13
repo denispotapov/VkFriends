@@ -53,7 +53,6 @@ object AppModule {
     fun provideSharedPreferences(@AppContext context: Context): SharedPreferences =
         context.getSharedPreferences("token", Context.MODE_PRIVATE)
 
-    @Singleton
     @Provides
     fun provideToken(sharedPreferences: SharedPreferences): String =
         sharedPreferences.getString("key", "")!!

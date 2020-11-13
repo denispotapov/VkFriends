@@ -1,6 +1,5 @@
 package com.example.vkmessenger.network
 
-import com.example.vkmessenger.ResultFriends
 import com.example.vkmessenger.ResultUser
 import retrofit2.Call
 import retrofit2.Response
@@ -16,7 +15,7 @@ interface VkApi {
     fun getFriendsOnline(): Call<ResultFriendsOnline>*/
 
     @GET("friends.get?fields=photo_100&v=5.52&access_token=access_token")
-    suspend fun getFriends(@Query("access_token") access_token: String): Response<ResultFriends>
+    suspend fun getFriends(@Query("access_token") access_token: String): Response<ResponseResultFriends>
 
 
 }

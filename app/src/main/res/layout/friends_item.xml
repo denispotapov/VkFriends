@@ -8,8 +8,8 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="97dp"
+        android:layout_height="97dp"
         android:src="@mipmap/ic_launcher"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,26 +19,24 @@
         android:id="@+id/first_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="48dp"
-        android:text="Имя"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="4dp"
+        android:text="@string/first_name"
         android:textColor="@color/black"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/image"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.500" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/last_name"
+        app:layout_constraintStart_toEndOf="@+id/image" />
 
     <TextView
         android:id="@+id/last_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:text="Фамилия"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="28dp"
+        android:text="@string/last_name"
         android:textColor="@color/black"
-        android:textSize="17sp"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/first_name"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.500" />
+        app:layout_constraintStart_toEndOf="@+id/image" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

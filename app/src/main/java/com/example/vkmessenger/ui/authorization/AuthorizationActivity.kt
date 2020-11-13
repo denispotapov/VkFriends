@@ -8,9 +8,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ResultUser
+import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.network.VkApi
 import com.example.vkmessenger.ui.friends.FriendsActivity
 import com.vk.api.sdk.VK
@@ -27,6 +29,10 @@ import javax.inject.Inject
 class AuthorizationActivity : DaggerAppCompatActivity() {
 
     @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
+    lateinit var authorizationViewModel: AuthorizationViewModel
+
+    @Inject
     lateinit var vkApi: VkApi
     private var tokenVK = ""
     private val TAG = "TAG"
@@ -34,6 +40,9 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_authorization)
+
+        authorizationViewModel =
+            ViewModelProvider(this, providerFactory).get(AuthorizationViewModel::class.java)
 
         loadToken()
         loadUserInfo()
@@ -63,7 +72,6 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     }
 
     private fun loadToken() {
-        //val sPref = getPreferences(Context.MODE_PRIVATE)
         val sPref = getSharedPreferences("token", Context.MODE_PRIVATE)
         val savedToken = sPref.getString("key", "")
         if (savedToken != null) {
@@ -86,37 +94,37 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     }
 
     private fun getUserInfo() {
-            val call = vkApi.getUserInfo(tokenVK)
-            call.enqueue(object : Callback<ResultUser> {
-                override fun onResponse(
-                    call: Call<ResultUser>,
-                    response: Response<ResultUser>
-                ) {
-                    if (!response.isSuccessful) {
-                        Log.d(TAG, "Code" + response.code())
-                        return
-                    }
-                    val userInfo = response.body()
-                    Log.d(TAG, "onResponse: $userInfo")
-                    textView.text =
-                        (userInfo!!.response[0].first_name + " " + userInfo.response[0].last_name)
-                    Glide.with(this@AuthorizationActivity)
-                        .load(userInfo.response[0].photo_100)
-                        .into(imageView)
-
-                    val sPref = getPreferences(MODE_PRIVATE)
-                    val editPref = sPref.edit()
-                    editPref.putString("fistName", userInfo.response[0].first_name)
-                    editPref.putString("lastName", userInfo.response[0].last_name)
-                    editPref.putString("image", userInfo.response[0].photo_100)
-                    editPref.apply()
+        val call = vkApi.getUserInfo(tokenVK)
+        call.enqueue(object : Callback<ResultUser> {
+            override fun onResponse(
+                call: Call<ResultUser>,
+                response: Response<ResultUser>
+            ) {
+                if (!response.isSuccessful) {
+                    Log.d(TAG, "Code" + response.code())
+                    return
                 }
+                val userInfo = response.body()
+                Log.d(TAG, "onResponse: $userInfo")
+                textView.text =
+                    (userInfo!!.response[0].first_name + " " + userInfo.response[0].last_name)
+                Glide.with(this@AuthorizationActivity)
+                    .load(userInfo.response[0].photo_100)
+                    .into(imageView)
 
-                override fun onFailure(call: Call<ResultUser>, t: Throwable) {
-                    Log.d(TAG, "onFailure: ${t.message}")
-                }
+                val sPref = getPreferences(MODE_PRIVATE)
+                val editPref = sPref.edit()
+                editPref.putString("fistName", userInfo.response[0].first_name)
+                editPref.putString("lastName", userInfo.response[0].last_name)
+                editPref.putString("image", userInfo.response[0].photo_100)
+                editPref.apply()
+            }
 
-            })
+            override fun onFailure(call: Call<ResultUser>, t: Throwable) {
+                Log.d(TAG, "onFailure: ${t.message}")
+            }
+
+        })
 
     }
 
@@ -124,7 +132,6 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 tokenVK = token.accessToken
-                //val sPref = getPreferences(Context.MODE_PRIVATE)
                 val sPref = getSharedPreferences("token", Context.MODE_PRIVATE)
                 val editPref = sPref.edit()
                 editPref.putString("key", tokenVK)
@@ -156,6 +163,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.exit -> {
+                authorizationViewModel.deleteAllFriends()
                 deleteToken()
                 VK.logout()
                 VK.login(
