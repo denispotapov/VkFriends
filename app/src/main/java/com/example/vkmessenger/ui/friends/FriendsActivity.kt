@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
+import com.example.vkmessenger.network.ResponseFriend
 import com.example.vkmessenger.network.ResponseFriends
 import com.example.vkmessenger.network.ResponseResultFriends
-import com.example.vkmessenger.network.ResponseUser
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_friends.*
 import javax.inject.Inject
@@ -19,7 +19,7 @@ class FriendsActivity : DaggerAppCompatActivity() {
     lateinit var providerFactory: ViewModelProviderFactory
     lateinit var friendsViewModel: FriendsViewModel
 
-    private val items: List<ResponseUser> = listOf()
+    private val items: List<ResponseFriend> = listOf()
     private val friends = ResponseFriends(items)
     private val resultFriends = ResponseResultFriends(friends)
 

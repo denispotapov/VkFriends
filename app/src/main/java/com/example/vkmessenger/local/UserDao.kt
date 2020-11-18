@@ -7,14 +7,15 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface FriendsDao {
+interface UserDao {
 
-    @Query("SELECT * FROM friends_table")
-    fun getAllFriends(): Flow<List<Friend>>
+    @Query("SELECT * FROM user")
+    fun getUserInfo(): Flow<User>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAllFriends(users: List<Friend>)
+    suspend fun insertUser(user: User)
 
-    @Query("DELETE FROM friends_table")
-    suspend fun deleteAllFriends()
+    @Query("DELETE FROM user")
+    suspend fun deleteUser()
+
 }

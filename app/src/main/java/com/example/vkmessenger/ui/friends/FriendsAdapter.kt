@@ -10,12 +10,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.R
-import com.example.vkmessenger.local.UserInfo
+import com.example.vkmessenger.local.Friend
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.friends_item.view.*
 
 class FriendsAdapter(private val context: Context) :
-    ListAdapter<UserInfo, FriendsAdapter.FriendsHolder>(FriendsDiffCallback()) {
+    ListAdapter<Friend, FriendsAdapter.FriendsHolder>(FriendsDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsHolder {
         return FriendsHolder(
@@ -40,12 +40,12 @@ class FriendsAdapter(private val context: Context) :
 
 }
 
-class FriendsDiffCallback : DiffUtil.ItemCallback<UserInfo>() {
-    override fun areItemsTheSame(oldItem: UserInfo, newItem: UserInfo): Boolean {
+class FriendsDiffCallback : DiffUtil.ItemCallback<Friend>() {
+    override fun areItemsTheSame(oldItem: Friend, newItem: Friend): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: UserInfo, newItem: UserInfo): Boolean {
+    override fun areContentsTheSame(oldItem: Friend, newItem: Friend): Boolean {
         return oldItem.first_name == newItem.first_name && oldItem.last_name == newItem.last_name &&
                 oldItem.photo_100 == newItem.photo_100
     }

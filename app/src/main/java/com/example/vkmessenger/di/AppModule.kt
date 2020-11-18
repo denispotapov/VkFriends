@@ -4,7 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
 import com.example.vkmessenger.local.FriendsDao
-import com.example.vkmessenger.local.FriendsDatabase
+import com.example.vkmessenger.local.UserDao
+import com.example.vkmessenger.local.VkDatabase
 import com.example.vkmessenger.network.VkApi
 import dagger.Module
 import dagger.Provides
@@ -23,17 +24,23 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideFriendsDao(friendsDatabase: FriendsDatabase): FriendsDao =
-        friendsDatabase.friendsDao()
+    fun provideUserDao(vkDatabase: VkDatabase): UserDao =
+        vkDatabase.userDao()
 
     @Singleton
     @Provides
-    fun provideDatabase(@AppContext context: Context): FriendsDatabase {
-        var INSTANCE: FriendsDatabase? = null
+    fun provideFriendsDao(vkDatabase: VkDatabase): FriendsDao =
+        vkDatabase.friendsDao()
+
+    @Singleton
+    @Provides
+
+    fun provideDatabase(@AppContext context: Context): VkDatabase {
+        var INSTANCE: VkDatabase? = null
 
         INSTANCE = INSTANCE ?: Room.databaseBuilder(
             context.applicationContext,
-            FriendsDatabase::class.java,
+            VkDatabase::class.java,
             "friends_base"
         ).build()
 

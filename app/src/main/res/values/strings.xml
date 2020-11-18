@@ -7,5 +7,6 @@
     <string name="friend_list">Cписок друзей</string>
     <string name="first_name">Имя</string>
     <string name="last_name">Фамилия</string>
+    <string name="entry">Вход</string>
     <integer name="com_vk_sdk_AppId">7645399</integer>
 </resources>

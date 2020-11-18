@@ -8,12 +8,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.R
-import com.example.vkmessenger.ResultUser
 import com.example.vkmessenger.ViewModelProviderFactory
-import com.example.vkmessenger.network.VkApi
+import com.example.vkmessenger.network.ResponseResultUser2
+import com.example.vkmessenger.network.ResponseUser
 import com.example.vkmessenger.ui.friends.FriendsActivity
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
@@ -21,9 +22,6 @@ import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_authorization.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import javax.inject.Inject
 
 class AuthorizationActivity : DaggerAppCompatActivity() {
@@ -32,10 +30,11 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     lateinit var providerFactory: ViewModelProviderFactory
     lateinit var authorizationViewModel: AuthorizationViewModel
 
-    @Inject
-    lateinit var vkApi: VkApi
     private var tokenVK = ""
     private val TAG = "TAG"
+
+    private val userList: List<ResponseUser> = listOf()
+    private val resultUser = ResponseResultUser2(userList)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,25 +44,31 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
             ViewModelProvider(this, providerFactory).get(AuthorizationViewModel::class.java)
 
         loadToken()
-        loadUserInfo()
+        if (tokenVK == "") {
+            load.isEnabled = false
+            VK.login(this, arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.OFFLINE))
+        } else loadUserInfo()
+
+        load.setOnClickListener {
+            loadUserInfo()
+        }
+
         friendList.setOnClickListener {
             val intent = Intent(this, FriendsActivity::class.java)
             startActivity(intent)
         }
-
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (tokenVK == "") {
-            VK.login(
-                this,
-                arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.FRIENDS, VKScope.OFFLINE)
-            )
-        } else {
-            getUserInfo()
-            friendList.visibility = View.VISIBLE
-        }
+    private fun loadUserInfo() {
+        authorizationViewModel.userInfo.observe(this@AuthorizationActivity, Observer {
+            textView.text = it.first_name + " " + it.last_name
+            Glide.with(this@AuthorizationActivity)
+                .load(it.photo_100)
+                .into(imageView)
+            Log.d(TAG, "onResume: $it")
+        })
+        friendList.visibility = View.VISIBLE
+        load.visibility = View.GONE
     }
 
     private fun deleteToken() {
@@ -79,63 +84,16 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
         }
     }
 
-    private fun loadUserInfo() {
-
-        val sPref = getPreferences(Context.MODE_PRIVATE)
-        val savedFirst = sPref.getString("fistName", "")
-        val savedLast = sPref.getString("lastName", "")
-        val savedPhoto = sPref.getString("image", "")
-        if (savedFirst != null && savedLast != null && savedPhoto != null) {
-            textView.text = "$savedFirst $savedLast"
-            Glide.with(this@AuthorizationActivity)
-                .load(savedPhoto)
-                .into(imageView)
-        }
-    }
-
-    private fun getUserInfo() {
-        val call = vkApi.getUserInfo(tokenVK)
-        call.enqueue(object : Callback<ResultUser> {
-            override fun onResponse(
-                call: Call<ResultUser>,
-                response: Response<ResultUser>
-            ) {
-                if (!response.isSuccessful) {
-                    Log.d(TAG, "Code" + response.code())
-                    return
-                }
-                val userInfo = response.body()
-                Log.d(TAG, "onResponse: $userInfo")
-                textView.text =
-                    (userInfo!!.response[0].first_name + " " + userInfo.response[0].last_name)
-                Glide.with(this@AuthorizationActivity)
-                    .load(userInfo.response[0].photo_100)
-                    .into(imageView)
-
-                val sPref = getPreferences(MODE_PRIVATE)
-                val editPref = sPref.edit()
-                editPref.putString("fistName", userInfo.response[0].first_name)
-                editPref.putString("lastName", userInfo.response[0].last_name)
-                editPref.putString("image", userInfo.response[0].photo_100)
-                editPref.apply()
-            }
-
-            override fun onFailure(call: Call<ResultUser>, t: Throwable) {
-                Log.d(TAG, "onFailure: ${t.message}")
-            }
-
-        })
-
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
+
                 tokenVK = token.accessToken
                 val sPref = getSharedPreferences("token", Context.MODE_PRIVATE)
                 val editPref = sPref.edit()
                 editPref.putString("key", tokenVK)
                 editPref.apply()
+                authorizationViewModel.requestUser(resultUser)
 
                 Log.d(TAG, "onLogin: $tokenVK")
                 Toast.makeText(
@@ -143,8 +101,8 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
                     "Вы успешно авторизовались",
                     Toast.LENGTH_LONG
                 ).show()
+                load.isEnabled = true
             }
-
             override fun onLoginFailed(errorCode: Int) {
                 Log.d(TAG, "Token error: $errorCode")
             }
@@ -168,7 +126,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
                 VK.logout()
                 VK.login(
                     this,
-                    arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.FRIENDS, VKScope.OFFLINE)
+                    arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.OFFLINE)
                 )
                 return true
             }

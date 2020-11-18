@@ -1,7 +1,5 @@
 package com.example.vkmessenger.network
 
-import com.example.vkmessenger.ResultUser
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -9,7 +7,7 @@ import retrofit2.http.Query
 interface VkApi {
 
     @GET("users.get?fields=photo_100&v=5.52&access_token=access_token")
-    fun getUserInfo(@Query("access_token") access_token: String): Call<ResultUser>
+    suspend fun getUserInfo(@Query("access_token") access_token: String): Response<ResponseResultUser2>
 
     /*@GET("friends.getOnline?v=5.52&access_token=$token")
     fun getFriendsOnline(): Call<ResultFriendsOnline>*/

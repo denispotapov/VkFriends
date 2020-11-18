@@ -2,12 +2,12 @@ package com.example.vkmessenger.di
 
 import android.app.Application
 import android.content.Context
-import com.example.vkmessenger.FriendsDefaultRepository
-import com.example.vkmessenger.FriendsRepository
-import com.example.vkmessenger.local.FriendRoomDataSource
-import com.example.vkmessenger.local.FriendsLocalDataSource
-import com.example.vkmessenger.network.FriendsFromVK
-import com.example.vkmessenger.network.LoadFriendsRetrofit
+import com.example.vkmessenger.VkDefaultRepository
+import com.example.vkmessenger.VkRepository
+import com.example.vkmessenger.local.VkLocalDataSource
+import com.example.vkmessenger.local.VkRoomDataSource
+import com.example.vkmessenger.network.VkNetworkDataSource
+import com.example.vkmessenger.network.VkRetrofitDataSource
 import dagger.Binds
 import dagger.Module
 import javax.inject.Qualifier
@@ -21,13 +21,13 @@ abstract class AppModuleBinds {
     abstract fun bindContext(application: Application): Context
 
     @Binds
-    abstract fun bindFriendsFromVK(loadFriendsRetrofit: LoadFriendsRetrofit): FriendsFromVK
+    abstract fun bindFriendsFromVK(vkRetrofitDataSource: VkRetrofitDataSource): VkNetworkDataSource
 
     @Binds
-    abstract fun bindFriendsLocalDataSource(friendsRoomDataSource: FriendRoomDataSource): FriendsLocalDataSource
+    abstract fun bindFriendsLocalDataSource(friendsRoomDataSource: VkRoomDataSource): VkLocalDataSource
 
     @Binds
-    abstract fun bindFriendsRepository(friendsDefaultRepository: FriendsDefaultRepository): FriendsRepository
+    abstract fun bindFriendsRepository(friendsDefaultRepository: VkDefaultRepository): VkRepository
 }
 
 @Qualifier
