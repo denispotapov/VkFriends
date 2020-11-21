@@ -1,23 +1,25 @@
 package com.example.vkmessenger
 
-import androidx.lifecycle.LiveData
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.local.User
-import com.example.vkmessenger.network.ResponseResultFriends
-import com.example.vkmessenger.network.ResponseResultUser2
 import com.example.vkmessenger.network.Result
+import kotlinx.coroutines.flow.Flow
 
 interface VkRepository {
 
-    fun geUserInfo(): LiveData<User>
+    fun geUserInfo(): Flow<User>
 
-    fun getFriends(): LiveData<List<Friend>>
+    suspend fun requestUser(): Result<Unit>
 
     suspend fun deleteUser()
 
+    fun getAllFriends(): Flow<List<Friend>>
+
+    suspend fun requestAllFriends(): Result<Unit> // todo read about kotlin default arguments
+
     suspend fun deleteAllFriends()
 
-    suspend fun requestFriends(friends: ResponseResultFriends): Result<Unit>
-
-    suspend fun requestUser(user: ResponseResultUser2): Result<Unit>
+    suspend fun getOnlineFriendsIds(): Result<List<Int>>
 }
+
+// apiV: String = API_VERSION

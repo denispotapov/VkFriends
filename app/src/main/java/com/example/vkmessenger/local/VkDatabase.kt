@@ -8,5 +8,4 @@ abstract class VkDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
     abstract fun friendsDao(): FriendsDao
-
 }

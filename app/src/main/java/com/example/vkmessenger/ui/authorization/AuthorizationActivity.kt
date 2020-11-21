@@ -13,8 +13,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
-import com.example.vkmessenger.network.ResponseResultUser2
-import com.example.vkmessenger.network.ResponseUser
 import com.example.vkmessenger.ui.friends.FriendsActivity
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
@@ -31,10 +29,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     lateinit var authorizationViewModel: AuthorizationViewModel
 
     private var tokenVK = ""
-    private val TAG = "TAG"
-
-    private val userList: List<ResponseUser> = listOf()
-    private val resultUser = ResponseResultUser2(userList)
+    private val TAG = "TAG" //todo remove
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,30 +40,30 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
 
         loadToken()
         if (tokenVK == "") {
-            load.isEnabled = false
+            button_entry.isEnabled = false
             VK.login(this, arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.OFFLINE))
-        } else loadUserInfo()
-
-        load.setOnClickListener {
-            loadUserInfo()
+        } else {
+            observeUserInfo()
         }
 
-        friendList.setOnClickListener {
+        button_entry.setOnClickListener { observeUserInfo() }
+
+        button_open_friends.setOnClickListener {
             val intent = Intent(this, FriendsActivity::class.java)
             startActivity(intent)
         }
     }
 
-    private fun loadUserInfo() {
+    private fun observeUserInfo() {
         authorizationViewModel.userInfo.observe(this@AuthorizationActivity, Observer {
-            textView.text = it.first_name + " " + it.last_name
+            text_first_last_name.text = it.firstName + " " + it.lastName
             Glide.with(this@AuthorizationActivity)
-                .load(it.photo_100)
-                .into(imageView)
-            Log.d(TAG, "onResume: $it")
+                .load(it.photo)
+                .into(image_user_photo)
+            Log.d(TAG, "onCreate Auth: $it")
         })
-        friendList.visibility = View.VISIBLE
-        load.visibility = View.GONE
+        button_open_friends.visibility = View.VISIBLE
+        button_entry.visibility = View.GONE
     }
 
     private fun deleteToken() {
@@ -93,7 +88,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
                 val editPref = sPref.edit()
                 editPref.putString("key", tokenVK)
                 editPref.apply()
-                authorizationViewModel.requestUser(resultUser)
+                authorizationViewModel.onAccessTokenObtained()
 
                 Log.d(TAG, "onLogin: $tokenVK")
                 Toast.makeText(
@@ -101,8 +96,9 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
                     "Вы успешно авторизовались",
                     Toast.LENGTH_LONG
                 ).show()
-                load.isEnabled = true
+                button_entry.isEnabled = true //todo read about viewbinding and databinding
             }
+
             override fun onLoginFailed(errorCode: Int) {
                 Log.d(TAG, "Token error: $errorCode")
             }
@@ -121,7 +117,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.exit -> {
-                authorizationViewModel.deleteAllFriends()
+                authorizationViewModel.onExitItemSelected()
                 deleteToken()
                 VK.logout()
                 VK.login(

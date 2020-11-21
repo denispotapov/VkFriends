@@ -10,9 +10,9 @@ interface VkLocalDataSource {
 
     suspend fun deleteUser()
 
-    fun getFriends(): Flow<List<Friend>>
-
-    suspend fun deleteAllFriends()
+    fun getAllFriends(): Flow<List<Friend>>
 
     suspend fun insertAllFriends(users: List<Friend>)
+
+    suspend fun deleteAllFriends()
 }

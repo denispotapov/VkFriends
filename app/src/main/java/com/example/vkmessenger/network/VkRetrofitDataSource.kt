@@ -1,23 +1,39 @@
 package com.example.vkmessenger.network
 
-import android.util.Log
+import com.example.vkmessenger.network.getfriendsfromvk.ResponseResultFriends
+import com.example.vkmessenger.network.getuserinfo.ResponseResultUser
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Provider
 
 class VkRetrofitDataSource @Inject constructor(
-    private val vkApi: VkApi,
+    private val vkRetrofitApi: VkRetrofitApi,
     private val ioDispatcher: CoroutineDispatcher,
-    private val accessToken: Provider<String>
+    private val accessToken: Provider<String> //todo add named annotation
 ) : VkNetworkDataSource {
-    override suspend fun getFriendsFromVK(friendsUser: ResponseResultFriends) =
+
+    override suspend fun getUserInfo(): Result<ResponseResultUser> =
         withContext(ioDispatcher) {
             try {
-                val response = vkApi.getFriends(accessToken.get())
+                val response = vkRetrofitApi.getUserInfo(accessToken.get())
+                val userResponse = response.body()
+                return@withContext if (response.isSuccessful && userResponse != null) {
+                    Result.Success(userResponse)
+                } else {
+                    Result.Error(Exception())
+                }
+            } catch (e: Exception) {
+                Result.Error(e)
+            }
+        }
+
+    override suspend fun getFriendsFromVK(): Result<ResponseResultFriends> =
+        withContext(ioDispatcher) {
+            try {
+                val response = vkRetrofitApi.getFriends(accessToken.get())
                 val friendsResponse = response.body()
                 return@withContext if (response.isSuccessful && friendsResponse != null) {
-                    Log.d("Token", "getFriendsFromVK: $accessToken")
                     Result.Success(friendsResponse)
                 } else {
                     Result.Error(Exception())
@@ -27,13 +43,13 @@ class VkRetrofitDataSource @Inject constructor(
             }
         }
 
-    override suspend fun getUserInfo(user: ResponseResultUser2): Result<ResponseResultUser2> =
+    override suspend fun getFriendsOnlineIds(): Result<List<Int>> =
         withContext(ioDispatcher) {
             try {
-                val response = vkApi.getUserInfo(accessToken.get())
-                val userResponse = response.body()
-                return@withContext if (response.isSuccessful && userResponse != null) {
-                    Result.Success(userResponse)
+                val response = vkRetrofitApi.getFriendsOnlineIds(accessToken.get())
+                val listOfIds = response.body()?.response
+                return@withContext if (response.isSuccessful && listOfIds != null) {
+                    Result.Success(listOfIds)
                 } else {
                     Result.Error(Exception())
                 }

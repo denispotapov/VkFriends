@@ -6,7 +6,7 @@ import androidx.room.Room
 import com.example.vkmessenger.local.FriendsDao
 import com.example.vkmessenger.local.UserDao
 import com.example.vkmessenger.local.VkDatabase
-import com.example.vkmessenger.network.VkApi
+import com.example.vkmessenger.network.VkRetrofitApi
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineDispatcher
@@ -49,11 +49,11 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideVkApi(): VkApi = Retrofit.Builder()
+    fun provideVkApi(): VkRetrofitApi = Retrofit.Builder()
         .baseUrl("https://api.vk.com/method/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        .create(VkApi::class.java)
+        .create(VkRetrofitApi::class.java)
 
     @Singleton
     @Provides

@@ -2,10 +2,14 @@ package com.example.vkmessenger.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.vkmessenger.util.AUTHORIZED_USER_ID
 
 @Entity(tableName = "user")
-data class User(val first_name: String, val last_name: String, val photo_100: String) {
-
+data class User(
+    val firstName: String,
+    val lastName: String,
+    val photo: String
+) {
     @PrimaryKey
-    var id: Int = 1
+    var id: Int = AUTHORIZED_USER_ID
 }

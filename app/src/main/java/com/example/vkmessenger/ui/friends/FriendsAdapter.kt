@@ -24,29 +24,26 @@ class FriendsAdapter(private val context: Context) :
     }
 
     override fun onBindViewHolder(holder: FriendsHolder, position: Int) {
-        holder.firstName.text = getItem(position).first_name
-        holder.lastName.text = getItem(position).last_name
+        holder.firstName.text = getItem(position).firstName
+        holder.lastName.text = getItem(position).lastName
         Glide.with(context)
-            .load(getItem(position).photo_100)
+            .load(getItem(position).photo)
             .into(holder.photoFriend)
     }
 
-
     inner class FriendsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val firstName: TextView = itemView.first_name
-        val lastName: TextView = itemView.last_name
-        val photoFriend: CircleImageView = itemView.image
+        val firstName: TextView = itemView.text_first_name
+        val lastName: TextView = itemView.text_last_name
+        val photoFriend: CircleImageView = itemView.image_user
     }
-
 }
 
 class FriendsDiffCallback : DiffUtil.ItemCallback<Friend>() {
-    override fun areItemsTheSame(oldItem: Friend, newItem: Friend): Boolean {
-        return oldItem.id == newItem.id
-    }
 
-    override fun areContentsTheSame(oldItem: Friend, newItem: Friend): Boolean {
-        return oldItem.first_name == newItem.first_name && oldItem.last_name == newItem.last_name &&
-                oldItem.photo_100 == newItem.photo_100
-    }
+    override fun areItemsTheSame(oldItem: Friend, newItem: Friend): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: Friend, newItem: Friend): Boolean =
+        oldItem.firstName == newItem.firstName && oldItem.lastName == newItem.lastName &&
+                oldItem.photo == newItem.photo
 }

@@ -1,8 +1,13 @@
 package com.example.vkmessenger.network
 
+import com.example.vkmessenger.network.getfriendsfromvk.ResponseResultFriends
+import com.example.vkmessenger.network.getuserinfo.ResponseResultUser
+
 interface VkNetworkDataSource {
 
-    suspend fun getFriendsFromVK(friendsUser: ResponseResultFriends): Result<ResponseResultFriends>
+    suspend fun getUserInfo(): Result<ResponseResultUser>
 
-    suspend fun getUserInfo(user: ResponseResultUser2): Result<ResponseResultUser2>
+    suspend fun getFriendsFromVK(): Result<ResponseResultFriends>
+
+    suspend fun getFriendsOnlineIds(): Result<List<Int>>
 }
