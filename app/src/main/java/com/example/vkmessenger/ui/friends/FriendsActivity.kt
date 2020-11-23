@@ -1,12 +1,18 @@
 package com.example.vkmessenger.ui.friends
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
+import com.example.vkmessenger.ui.friendsonline.FriendsOnlineActivity
+import com.vk.api.sdk.VK
+import com.vk.api.sdk.auth.VKScope
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_friends.*
 import javax.inject.Inject
@@ -32,13 +38,26 @@ class FriendsActivity : DaggerAppCompatActivity() {
 
         friendsViewModel.requestFriends()
 
-        friendsViewModel.onlineFriends.observe(this@FriendsActivity, Observer {
-            Log.d("TAG", "Online: $it")
-        })
-
         recycler_view.apply {
             adapter = friendsAdapter
             layoutManager = LinearLayoutManager(this@FriendsActivity)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val menuInflater = menuInflater
+        menuInflater.inflate(R.menu.friends_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.friends_online -> {
+                val intent = Intent(this, FriendsOnlineActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.example.vkmessenger.BuildConfig
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.ui.friends.FriendsActivity
@@ -20,6 +21,7 @@ import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_authorization.*
+import timber.log.Timber
 import javax.inject.Inject
 
 class AuthorizationActivity : DaggerAppCompatActivity() {
@@ -29,11 +31,12 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     lateinit var authorizationViewModel: AuthorizationViewModel
 
     private var tokenVK = ""
-    private val TAG = "TAG" //todo remove
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_authorization)
+
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
 
         authorizationViewModel =
             ViewModelProvider(this, providerFactory).get(AuthorizationViewModel::class.java)
@@ -60,7 +63,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
             Glide.with(this@AuthorizationActivity)
                 .load(it.photo)
                 .into(image_user_photo)
-            Log.d(TAG, "onCreate Auth: $it")
+            Timber.d("onCreate Auth: $it")
         })
         button_open_friends.visibility = View.VISIBLE
         button_entry.visibility = View.GONE
@@ -90,7 +93,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
                 editPref.apply()
                 authorizationViewModel.onAccessTokenObtained()
 
-                Log.d(TAG, "onLogin: $tokenVK")
+                Timber.d("onLogin: $tokenVK")
                 Toast.makeText(
                     this@AuthorizationActivity,
                     "Вы успешно авторизовались",
@@ -100,7 +103,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
             }
 
             override fun onLoginFailed(errorCode: Int) {
-                Log.d(TAG, "Token error: $errorCode")
+                Timber.d("Token error: $errorCode")
             }
         }
         if (data == null || !VK.onActivityResult(requestCode, resultCode, data, callback)) {
@@ -110,7 +113,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val menuInflater = menuInflater
-        menuInflater.inflate(R.menu.main_menu, menu)
+        menuInflater.inflate(R.menu.auth_menu, menu)
         return true
     }
 

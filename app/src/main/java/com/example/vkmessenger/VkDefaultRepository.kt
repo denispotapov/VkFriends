@@ -1,6 +1,5 @@
 package com.example.vkmessenger
 
-import android.util.Log
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.local.User
 import com.example.vkmessenger.local.VkLocalDataSource
@@ -10,6 +9,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class VkDefaultRepository @Inject constructor(
@@ -27,14 +27,15 @@ class VkDefaultRepository @Inject constructor(
                 is Result.Success -> {
                     val user = getUserResult.data.response?.firstOrNull()?.toEntity()
                     user?.let { vkLocalDataSource.insertUser(it) }
-                    Log.d( //todo maybe use Timber library for logging
-                        "TAG",
-                        "Repository: ${getUserResult.data.response?.map { it.toEntity() }?.get(0)}"
+                    Timber.d(
+                        "Repository: ${
+                            getUserResult.data.response?.map { it.toEntity() }?.get(0)
+                        }"
                     )
                     Result.Success(Unit)
                 }
                 is Result.Error -> {
-                    Log.d("User", "requestUser: Error")
+                    Timber.d("requestUser: Error")
                     Result.Error(getUserResult.exception) // todo add UI exception handling
                 }
             }
@@ -51,13 +52,13 @@ class VkDefaultRepository @Inject constructor(
         withContext(ioDispatcher) {
             when (val getFriendsResult = vkNetworkDataSource.getFriendsFromVK()) {
                 is Result.Success -> {
-                    Log.d("Repository", "requestFriends: ${getFriendsResult.data}")
+                    Timber.d("requestFriends: ${getFriendsResult.data}")
                     val friends = getFriendsResult.data.response?.items?.map { it.toEntity() }
                     friends?.let { vkLocalDataSource.insertAllFriends(it) }
                     Result.Success(Unit)
                 }
                 is Result.Error -> {
-                    Log.d("Repository", "requestFriends: Error")
+                    Timber.d("requestFriends: Error")
                     Result.Error(getFriendsResult.exception)
                 }
             }
