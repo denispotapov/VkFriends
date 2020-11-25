@@ -69,14 +69,20 @@ class VkDefaultRepository @Inject constructor(
     }
 
     override suspend fun getOnlineFriendsIds(): Result<List<Int>> = withContext(ioDispatcher) {
-        when (val getFriendsResult = vkNetworkDataSource.getFriendsOnlineIds()) {
+        when (val getFriendsResultIds = vkNetworkDataSource.getFriendsOnlineIds()) {
             is Result.Success -> {
-                val onlineIds = getFriendsResult.data
+                val onlineIds = getFriendsResultIds.data
+                Timber.d("Список онлайн ids: $onlineIds")
                 Result.Success(onlineIds)
             }
-            is Result.Error -> Result.Error(getFriendsResult.exception)
+            is Result.Error -> Result.Error(getFriendsResultIds.exception)
         }
     }
+
+    override suspend fun getOnlineFriends(onlineIds: List<Int>): List<Friend> =
+        withContext(ioDispatcher) {
+            vkLocalDataSource.getOnlineFriends(onlineIds)
+        }
 }
 
 

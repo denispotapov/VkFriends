@@ -15,4 +15,6 @@ interface VkLocalDataSource {
     suspend fun insertAllFriends(users: List<Friend>)
 
     suspend fun deleteAllFriends()
+
+    suspend fun getOnlineFriends(onlineIds: List<Int>): List<Friend>
 }

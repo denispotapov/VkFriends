@@ -15,6 +15,7 @@ import javax.inject.Singleton
 
 @Module
 abstract class AppModuleBinds {
+
     @Singleton
     @Binds
     @AppContext

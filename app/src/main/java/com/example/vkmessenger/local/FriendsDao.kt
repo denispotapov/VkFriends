@@ -18,4 +18,6 @@ interface FriendsDao {
     @Query("DELETE FROM friends_table")
     suspend fun deleteAllFriends()
 
+    @Query("SELECT * FROM friends_table WHERE id IN(:onlineIds)")
+    suspend fun getOnlineFriends(onlineIds: List<Int>): List<Friend>
 }

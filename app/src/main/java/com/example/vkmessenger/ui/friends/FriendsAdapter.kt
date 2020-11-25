@@ -32,6 +32,7 @@ class FriendsAdapter(private val context: Context) :
     }
 
     inner class FriendsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         val firstName: TextView = itemView.text_first_name
         val lastName: TextView = itemView.text_last_name
         val photoFriend: CircleImageView = itemView.image_user

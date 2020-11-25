@@ -20,6 +20,8 @@ interface VkRepository {
     suspend fun deleteAllFriends()
 
     suspend fun getOnlineFriendsIds(): Result<List<Int>>
+
+    suspend fun getOnlineFriends(onlineIds: List<Int>): List<Friend>
 }
 
 // apiV: String = API_VERSION

@@ -11,5 +11,6 @@ data class ResponseUser(
     @SerializedName("photo_100")
     val photo: String?
 ) {
+
     fun toEntity() = User(firstName.orEmpty(), lastName.orEmpty(), photo.orEmpty())
 }

@@ -10,6 +10,7 @@ data class User(
     val lastName: String,
     val photo: String
 ) {
+
     @PrimaryKey
     var id: Int = AUTHORIZED_USER_ID
 }

@@ -30,4 +30,9 @@ class VkRoomDataSource @Inject constructor(
     override suspend fun deleteAllFriends() = withContext(ioDispatcher) {
         friendsDao.deleteAllFriends()
     }
+
+    override suspend fun getOnlineFriends(onlineIds: List<Int>): List<Friend> =
+        withContext(ioDispatcher) {
+            friendsDao.getOnlineFriends(onlineIds)
+        }
 }

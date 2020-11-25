@@ -13,6 +13,7 @@ data class ResponseFriend(
     @SerializedName("photo_100")
     val photo: String?
 ) {
+
     fun toEntity() =
         Friend(id ?: NO_VALUE, firstName.orEmpty(), lastName.orEmpty(), photo.orEmpty())
 }

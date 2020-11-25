@@ -2,7 +2,6 @@ package com.example.vkmessenger.ui.friends
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.lifecycle.Observer
@@ -11,8 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.ui.friendsonline.FriendsOnlineActivity
-import com.vk.api.sdk.VK
-import com.vk.api.sdk.auth.VKScope
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_friends.*
 import javax.inject.Inject
@@ -53,7 +50,7 @@ class FriendsActivity : DaggerAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.friends_online -> {
-                val intent = Intent(this, FriendsOnlineActivity::class.java)
+                val intent = Intent(this@FriendsActivity, FriendsOnlineActivity::class.java)
                 startActivity(intent)
                 return true
             }
