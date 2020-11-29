@@ -1,26 +1,27 @@
-package com.example.vkmessenger.ui.friends
+package com.example.vkmessenger.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.vkmessenger.R
+import com.example.vkmessenger.databinding.FriendsItemBinding
 import com.example.vkmessenger.local.Friend
+import com.example.vkmessenger.ui.friendsonline.FriendsOnlineViewModel
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.android.synthetic.main.friends_item.view.*
 
 class FriendsAdapter(private val context: Context) :
     ListAdapter<Friend, FriendsAdapter.FriendsHolder>(FriendsDiffCallback()) {
 
+    private lateinit var binding: FriendsItemBinding
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsHolder {
-        return FriendsHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.friends_item, parent, false)
-        )
+        binding = FriendsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return FriendsHolder(binding)
     }
 
     override fun onBindViewHolder(holder: FriendsHolder, position: Int) {
@@ -31,11 +32,13 @@ class FriendsAdapter(private val context: Context) :
             .into(holder.photoFriend)
     }
 
-    inner class FriendsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class FriendsHolder(binding: FriendsItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        val firstName: TextView = itemView.text_first_name
-        val lastName: TextView = itemView.text_last_name
-        val photoFriend: CircleImageView = itemView.image_user
+        val firstName: TextView = binding.textFirstName
+        val lastName: TextView = binding.textLastName
+        val photoFriend: CircleImageView = binding.imageUser
+
+       
     }
 }
 

@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -34,14 +35,13 @@ object AppModule {
 
     @Singleton
     @Provides
-
     fun provideDatabase(@AppContext context: Context): VkDatabase {
         var INSTANCE: VkDatabase? = null
 
         INSTANCE = INSTANCE ?: Room.databaseBuilder(
             context.applicationContext,
             VkDatabase::class.java,
-            "friends_base"
+            "vk_base"
         ).build()
 
         return INSTANCE
@@ -60,6 +60,7 @@ object AppModule {
     fun provideSharedPreferences(@AppContext context: Context): SharedPreferences =
         context.getSharedPreferences("token", Context.MODE_PRIVATE)
 
+    @Named("token")
     @Provides
     fun provideToken(sharedPreferences: SharedPreferences): String =
         sharedPreferences.getString("key", "")!!

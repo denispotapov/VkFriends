@@ -21,9 +21,10 @@ class VkDefaultRepository @Inject constructor(
     override fun geUserInfo(): Flow<User> = vkLocalDataSource.getUserInfo()
         .flowOn(ioDispatcher)
 
-    override suspend fun requestUser(): Result<Unit> =
+    override suspend fun requestUser(fields: String,
+                                     apiVersion: String): Result<Unit> =
         withContext(ioDispatcher) {
-            when (val getUserResult = vkNetworkDataSource.getUserInfo()) {
+            when (val getUserResult = vkNetworkDataSource.getUserInfo(fields, apiVersion)) {
                 is Result.Success -> {
                     val user = getUserResult.data.response?.firstOrNull()?.toEntity()
                     user?.let { vkLocalDataSource.insertUser(it) }
@@ -48,9 +49,11 @@ class VkDefaultRepository @Inject constructor(
     override fun getAllFriends(): Flow<List<Friend>> =
         vkLocalDataSource.getAllFriends().flowOn(ioDispatcher)
 
-    override suspend fun requestAllFriends(): Result<Unit> =
+    override suspend fun requestAllFriends(fields: String,
+                                           apiVersion: String): Result<Unit> =
         withContext(ioDispatcher) {
-            when (val getFriendsResult = vkNetworkDataSource.getFriendsFromVK()) {
+            when (val getFriendsResult = vkNetworkDataSource.getFriendsFromVK(fields,
+                apiVersion)) {
                 is Result.Success -> {
                     Timber.d("requestFriends: ${getFriendsResult.data}")
                     val friends = getFriendsResult.data.response?.items?.map { it.toEntity() }
@@ -68,8 +71,8 @@ class VkDefaultRepository @Inject constructor(
         vkLocalDataSource.deleteAllFriends()
     }
 
-    override suspend fun getOnlineFriendsIds(): Result<List<Int>> = withContext(ioDispatcher) {
-        when (val getFriendsResultIds = vkNetworkDataSource.getFriendsOnlineIds()) {
+    override suspend fun getOnlineFriendsIds(apiVersion: String): Result<List<Int>> = withContext(ioDispatcher) {
+        when (val getFriendsResultIds = vkNetworkDataSource.getFriendsOnlineIds(apiVersion)) {
             is Result.Success -> {
                 val onlineIds = getFriendsResultIds.data
                 Timber.d("Список онлайн ids: $onlineIds")

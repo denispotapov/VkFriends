@@ -18,6 +18,11 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        dataBinding = true
+        viewBinding = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -86,4 +91,7 @@ dependencies {
 
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    // SwipeRefreshLayout
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 }

@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.example.vkmessenger.BuildConfig
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
+import com.example.vkmessenger.databinding.ActivityAuthorizationBinding
 import com.example.vkmessenger.ui.friends.FriendsActivity
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
@@ -27,30 +28,38 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
-    lateinit var authorizationViewModel: AuthorizationViewModel
+    private lateinit var authorizationViewModel: AuthorizationViewModel
+    private lateinit var binding: ActivityAuthorizationBinding
 
     private var tokenVK = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_authorization)
+        binding = ActivityAuthorizationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
 
         authorizationViewModel =
             ViewModelProvider(this, providerFactory).get(AuthorizationViewModel::class.java)
 
+        observeToastMessage()
         loadToken()
         if (tokenVK == "") {
-            button_entry.isEnabled = false
+            binding.buttonEntry.isEnabled = false
             VK.login(this, arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.OFFLINE))
         } else {
             observeUserInfo()
+            observeToastMessage()
         }
 
-        button_entry.setOnClickListener { observeUserInfo() }
+        binding.buttonEntry.setOnClickListener { observeUserInfo()
+            observeToastMessage()
+        }
 
-        button_open_friends.setOnClickListener {
+
+        binding.buttonOpenFriends.setOnClickListener {
             val intent = Intent(this, FriendsActivity::class.java)
             startActivity(intent)
         }
@@ -58,14 +67,26 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
 
     private fun observeUserInfo() {
         authorizationViewModel.userInfo.observe(this@AuthorizationActivity, Observer {
-            text_first_last_name.text = it.firstName + " " + it.lastName
+            binding.textFirstLastName.text = it.firstName + " " + it.lastName
             Glide.with(this@AuthorizationActivity)
                 .load(it.photo)
-                .into(image_user_photo)
+                .into(binding.imageUserPhoto)
             Timber.d("onCreate Auth: $it")
         })
-        button_open_friends.visibility = View.VISIBLE
-        button_entry.visibility = View.GONE
+        binding.buttonOpenFriends.visibility = View.VISIBLE
+        binding.buttonEntry.visibility = View.GONE
+    }
+
+    private fun observeToastMessage() {
+        authorizationViewModel.result.observe(this, Observer { result ->
+            result.let {
+                if (result == false) {
+                    authorizationViewModel.message.observe(this, Observer {
+                        Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                    })
+                }
+            }
+        })
     }
 
     private fun deleteToken() {
@@ -98,7 +119,7 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
                     "Вы успешно авторизовались",
                     Toast.LENGTH_LONG
                 ).show()
-                button_entry.isEnabled = true //todo read about viewbinding and databinding
+                binding.buttonEntry.isEnabled = true
             }
 
             override fun onLoginFailed(errorCode: Int) {

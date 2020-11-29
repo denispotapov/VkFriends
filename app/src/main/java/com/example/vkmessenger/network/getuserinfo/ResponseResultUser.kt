@@ -1,3 +1,9 @@
 package com.example.vkmessenger.network.getuserinfo
 
-data class ResponseResultUser(val response: List<ResponseUser>?)
+import com.example.vkmessenger.BaseVkResponse
+import com.example.vkmessenger.network.VkErrorResponse
+
+data class ResponseResultUser(
+    val response: List<ResponseUser>?,
+    override val error: VkErrorResponse?
+) : BaseVkResponse()

@@ -14,21 +14,25 @@ class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRep
     ViewModel() {
 
     private val _friendsOnline = MutableLiveData<List<Friend>>()
-
     val friendsOnline: LiveData<List<Friend>> = _friendsOnline
 
-    private val _message: MutableLiveData<String> = MutableLiveData("")
+    private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
-    fun friendsOnline() {
+    fun refreshFriendsOnline() {
+        getFriendsOnline()
+    }
+
+    private fun getFriendsOnline() {
         viewModelScope.launch {
+            //todo check thread
             when (val onlineIdsResult = vkRepository.getOnlineFriendsIds()) {
                 is Result.Success -> {
                     _friendsOnline.value = vkRepository.getOnlineFriends(onlineIdsResult.data)
                 }
                 is Result.Error -> {
-                    _message.value = onlineIdsResult.exception.toString()
-                    vkRepository.getOnlineFriends(emptyList())
+                    _message.value = onlineIdsResult.getString()
+                    _friendsOnline.value = emptyList()
                 }
             }
         }
