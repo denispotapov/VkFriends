@@ -8,6 +8,7 @@ import com.example.vkmessenger.VkRepository
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.network.Result
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRepository) :
@@ -25,7 +26,6 @@ class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRep
 
     private fun getFriendsOnline() {
         viewModelScope.launch {
-            //todo check thread
             when (val onlineIdsResult = vkRepository.getOnlineFriendsIds()) {
                 is Result.Success -> {
                     _friendsOnline.value = vkRepository.getOnlineFriends(onlineIdsResult.data)

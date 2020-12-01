@@ -4,15 +4,14 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.databinding.FriendsItemBinding
 import com.example.vkmessenger.local.Friend
-import com.example.vkmessenger.ui.friendsonline.FriendsOnlineViewModel
 import de.hdodenhof.circleimageview.CircleImageView
+import javax.inject.Singleton
 
 class FriendsAdapter(private val context: Context) :
     ListAdapter<Friend, FriendsAdapter.FriendsHolder>(FriendsDiffCallback()) {
@@ -37,8 +36,6 @@ class FriendsAdapter(private val context: Context) :
         val firstName: TextView = binding.textFirstName
         val lastName: TextView = binding.textLastName
         val photoFriend: CircleImageView = binding.imageUser
-
-       
     }
 }
 

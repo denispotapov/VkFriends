@@ -13,17 +13,14 @@ class FriendsViewModel @Inject constructor(private val vkRepository: VkRepositor
 
     val allFriends: LiveData<List<Friend>> = friends.asLiveData()
 
-    private val _message: MutableLiveData<String> = MutableLiveData("")
+    private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
-
-    var result = MutableLiveData<Boolean>()
 
     fun requestFriends() {
         viewModelScope.launch {
-            when( val requestFriends = vkRepository.requestAllFriends()) {
+            when(val requestFriends = vkRepository.requestAllFriends()) {
                 is Result.Error -> {
                     _message.value = requestFriends.getString()
-                    result.value = false
                 }
             }
         }

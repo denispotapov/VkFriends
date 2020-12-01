@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class VkDefaultRepository @Inject constructor(
     private val vkLocalDataSource: VkLocalDataSource,
     private val vkNetworkDataSource: VkNetworkDataSource,

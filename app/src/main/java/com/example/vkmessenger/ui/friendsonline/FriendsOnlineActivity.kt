@@ -1,10 +1,11 @@
 package com.example.vkmessenger.ui.friendsonline
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.adapters.FriendsAdapter
@@ -14,8 +15,10 @@ import com.example.vkmessenger.util.SECONDS_COUNT
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_friends.*
 import kotlinx.android.synthetic.main.activity_friends_online.*
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.timer
 
 class FriendsOnlineActivity : DaggerAppCompatActivity() {
 
@@ -23,6 +26,8 @@ class FriendsOnlineActivity : DaggerAppCompatActivity() {
     lateinit var providerFactory: ViewModelProviderFactory
     private lateinit var friendsOnlineViewModel: FriendsOnlineViewModel
     private lateinit var binding: ActivityFriendsOnlineBinding
+    private lateinit var handler: Handler
+    private lateinit var runnable: Runnable
 
     private val friendsOnlineAdapter = FriendsAdapter(this)
 
@@ -31,46 +36,42 @@ class FriendsOnlineActivity : DaggerAppCompatActivity() {
         setContentView(R.layout.activity_friends_online)
         binding = ActivityFriendsOnlineBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.lifecycleOwner = this
 
         friendsOnlineViewModel =
-            ViewModelProvider(this, providerFactory).get(FriendsOnlineViewModel::class.java)
-        binding.viewmodel = friendsOnlineViewModel
+            ViewModelProvider(this, providerFactory).get(FriendsOnlineViewModel::class.java).also {
+                binding.viewmodel = it
+            }
 
+        initRecycler()
+        refreshFriendsOnlineBySwipe()
+        observeToastMessage()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        refreshFriendsOnlineByTime()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        handler.removeCallbacks(runnable)
+    }
+
+    private fun initRecycler() {
         binding.recyclerFriendsOnline.apply {
             adapter = friendsOnlineAdapter
-            layoutManager = LinearLayoutManager(this@FriendsOnlineActivity)
         }
+    }
 
+    private fun refreshFriendsOnlineBySwipe() {
         with(binding.swipeRefreshLayout) {
             setColorSchemeResources(R.color.san_marino)
             setOnRefreshListener {
                 friendsOnlineViewModel.refreshFriendsOnline()
-                observeFriendsOnline()
-
                 binding.swipeRefreshLayout.isRefreshing = false
-                // todo learn about handler, looper, thread, runnable - coding in flow
             }
         }
-
-        //todo know about apply, with, also, let, run
-
-        fixedRateTimer("timer", false, 0, SECONDS_COUNT * MILLIS_IN_SECOND) {
-            this@FriendsOnlineActivity.runOnUiThread {
-                friendsOnlineViewModel.refreshFriendsOnline() //todo check thread
-                observeFriendsOnline()
-            }
-        }
-        observeToastMessage()
-    }
-
-    private fun observeFriendsOnline() {
-
-        friendsOnlineViewModel.friendsOnline.observe(this@FriendsOnlineActivity, Observer {
-            friendsOnlineAdapter.submitList(it)
-        })
-        // todo look how BindingAdapters used in sunflower and todo app
-        // todo learn about BindingAdapter, InverseBindingAdapter, ListenerUtil
-        //
     }
 
     private fun observeToastMessage() {
@@ -78,4 +79,20 @@ class FriendsOnlineActivity : DaggerAppCompatActivity() {
             Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
     }
+
+    private fun refreshFriendsOnlineByTime() {
+        handler = Handler(Looper.getMainLooper())
+        runnable = object : Runnable {
+            override fun run() {
+                friendsOnlineViewModel.refreshFriendsOnline()
+                handler.postDelayed(this, SECONDS_COUNT * MILLIS_IN_SECOND)
+            }
+        }
+        handler.post(runnable)
+    }
 }
+
+// todo look how BindingAdapters used in sunflower and todo app
+// todo learn about BindingAdapter, InverseBindingAdapter, ListenerUtil
+// todo know about apply, with, also, let, run
+// todo learn about handler, looper, thread, runnable - coding in flow

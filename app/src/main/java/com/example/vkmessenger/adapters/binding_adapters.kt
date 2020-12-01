@@ -8,5 +8,4 @@ import timber.log.Timber
 @BindingAdapter("app:friends")
 fun RecyclerView.setFriends(friendList: List<Friend>?) {
     (adapter as? FriendsAdapter)?.submitList(friendList)
-    Timber.d("BindingAdapter $friendList")
 }

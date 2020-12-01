@@ -7,7 +7,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.adapters.FriendsAdapter
@@ -31,34 +30,27 @@ class FriendsActivity : DaggerAppCompatActivity() {
         setContentView(R.layout.activity_friends)
         binding = ActivityFriendsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.lifecycleOwner = this
 
         friendsViewModel =
-            ViewModelProvider(this, providerFactory).get(FriendsViewModel::class.java)
+            ViewModelProvider(this, providerFactory).get(FriendsViewModel::class.java).also {
+                binding.viewmodel = it
+            }
 
-        friendsViewModel.allFriends.observe(this, Observer {
-            friendsAdapter.submitList(it)
-        })
-
+        initRecycler()
         friendsViewModel.requestFriends()
-
         observeToastMessage()
+    }
 
+    private fun initRecycler() {
         binding.recyclerFriends.apply {
             adapter = friendsAdapter
-            layoutManager = LinearLayoutManager(this@FriendsActivity)
         }
-
     }
 
     private fun observeToastMessage() {
-        friendsViewModel.result.observe(this, Observer { result ->
-            result.let {
-                if (result == false) {
-                    friendsViewModel.message.observe(this, Observer {
-                        Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-                    })
-                }
-            }
+        friendsViewModel.message.observe(this, Observer {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
     }
 
