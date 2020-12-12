@@ -54,10 +54,10 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
             observeToastMessage()
         }
 
-        binding.buttonEntry.setOnClickListener { observeUserInfo()
+        binding.buttonEntry.setOnClickListener {
+            observeUserInfo()
             observeToastMessage()
         }
-
 
         binding.buttonOpenFriends.setOnClickListener {
             val intent = Intent(this, FriendsActivity::class.java)
@@ -78,14 +78,8 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
     }
 
     private fun observeToastMessage() {
-        authorizationViewModel.result.observe(this, Observer { result ->
-            result.let {
-                if (result == false) {
-                    authorizationViewModel.message.observe(this, Observer {
-                        Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-                    })
-                }
-            }
+        authorizationViewModel.message.observe(this, Observer {
+            Toast.makeText(this, it, Toast.LENGTH_LONG).show()
         })
     }
 

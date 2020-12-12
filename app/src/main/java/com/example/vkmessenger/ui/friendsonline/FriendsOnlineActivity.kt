@@ -91,8 +91,3 @@ class FriendsOnlineActivity : DaggerAppCompatActivity() {
         handler.post(runnable)
     }
 }
-
-// todo look how BindingAdapters used in sunflower and todo app
-// todo learn about BindingAdapter, InverseBindingAdapter, ListenerUtil
-// todo know about apply, with, also, let, run
-// todo learn about handler, looper, thread, runnable - coding in flow

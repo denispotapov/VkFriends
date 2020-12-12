@@ -12,10 +12,8 @@ class AuthorizationViewModel @Inject constructor(private val vkRepository: VkRep
 
     val userInfo: LiveData<User> = vkRepository.geUserInfo().asLiveData()
 
-    private val _message: MutableLiveData<String> = MutableLiveData("")
+    private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
-
-    var result = MutableLiveData<Boolean>()
 
     fun onAccessTokenObtained() {
         requestUser()
@@ -30,17 +28,16 @@ class AuthorizationViewModel @Inject constructor(private val vkRepository: VkRep
             when (val requestUser = vkRepository.requestUser()) {
                 is Result.Error -> {
                     _message.value = requestUser.getString()
-                    result.value = false
                 }
             }
         }
     }
 
-    private fun deleteUser() {
-        viewModelScope.launch { vkRepository.deleteUser() }
-    }
-
     private fun deleteAllFriends() {
         viewModelScope.launch { vkRepository.deleteAllFriends() }
+    }
+
+    private fun deleteUser() {
+        viewModelScope.launch { vkRepository.deleteUser() }
     }
 }

@@ -39,7 +39,7 @@ class VkDefaultRepository @Inject constructor(
                 }
                 is Result.Error -> {
                     Timber.d("requestUser: Error")
-                    Result.Error(getUserResult.exception) // todo add UI exception handling
+                    Result.Error(getUserResult.exception)
                 }
             }
         }

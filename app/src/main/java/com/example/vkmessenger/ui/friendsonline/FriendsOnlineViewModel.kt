@@ -20,6 +20,8 @@ class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRep
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> = _message
 
+    val loading = MutableLiveData(false)
+
     fun refreshFriendsOnline() {
         getFriendsOnline()
     }
@@ -29,6 +31,7 @@ class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRep
             when (val onlineIdsResult = vkRepository.getOnlineFriendsIds()) {
                 is Result.Success -> {
                     _friendsOnline.value = vkRepository.getOnlineFriends(onlineIdsResult.data)
+                    loading.value = true
                 }
                 is Result.Error -> {
                     _message.value = onlineIdsResult.getString()
