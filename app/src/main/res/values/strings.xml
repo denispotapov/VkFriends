@@ -10,5 +10,7 @@
     <string name="entry">Вход</string>
     <string name="exit">Выход</string>
     <string name="friends_online">Друзья онлайн</string>
+    <string name="tracking">Следить</string>
+    <string name="stop_tracking">Отменить слежку</string>
     <integer name="com_vk_sdk_AppId">7645399</integer>
 </resources>

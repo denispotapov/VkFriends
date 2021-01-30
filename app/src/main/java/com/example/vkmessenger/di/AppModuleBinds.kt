@@ -11,6 +11,7 @@ import com.example.vkmessenger.network.VkRetrofitDataSource
 import dagger.Binds
 import dagger.Module
 import javax.inject.Qualifier
+import javax.inject.Scope
 import javax.inject.Singleton
 
 @Module
@@ -34,3 +35,9 @@ abstract class AppModuleBinds {
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class AppContext
+
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.TYPE, AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+annotation class ServiceScoped
+

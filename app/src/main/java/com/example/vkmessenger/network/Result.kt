@@ -7,9 +7,9 @@ import java.util.concurrent.TimeoutException
 sealed class Result<out T> {
 
     data class Success<out T>(val data: T) : Result<T>()
-    class Error(val exception: Exception) : Result<Nothing>()
+    data class Error(val exception: CustomException) : Result<Nothing>()
 
-    fun getString(): String? {
+    fun getString(): String {
         return when (this) {
             is Success<*> -> "Success[data=$data]"
             is Error -> when {
