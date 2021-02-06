@@ -29,14 +29,26 @@ class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRep
         viewModelScope.launch {
             when (val onlineIdsResult = vkRepository.getOnlineFriendsIds()) {
                 is Result.Success -> {
+
                     _friendsOnline.value = vkRepository.getOnlineFriends(onlineIdsResult.data)
                     loading.value = true
+
+                    /*val listOnlineFriends = vkRepository.getOnlineFriends(onlineIdsResult.data)
+                    _friendsOnline.value = listOnlineFriends.filter {
+                        it.tracking == false
+                    }*/
                 }
                 is Result.Error -> {
                     _message.value = onlineIdsResult.getString()
                     _friendsOnline.value = emptyList()
                 }
             }
+        }
+    }
+
+    fun updateFriend(friend: Friend) {
+        viewModelScope.launch {
+            vkRepository.updateFriend(friend)
         }
     }
 }

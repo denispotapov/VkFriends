@@ -23,8 +23,10 @@ class VkDefaultRepository @Inject constructor(
     override fun geUserInfo(): Flow<User> = vkLocalDataSource.getUserInfo()
         .flowOn(ioDispatcher)
 
-    override suspend fun requestUser(fields: String,
-                                     apiVersion: String): Result<Unit> =
+    override suspend fun requestUser(
+        fields: String,
+        apiVersion: String
+    ): Result<Unit> =
         withContext(ioDispatcher) {
             when (val getUserResult = vkNetworkDataSource.getUserInfo(fields, apiVersion)) {
                 is Result.Success -> {
@@ -51,15 +53,29 @@ class VkDefaultRepository @Inject constructor(
     override fun getAllFriends(): Flow<List<Friend>> =
         vkLocalDataSource.getAllFriends().flowOn(ioDispatcher)
 
-    override suspend fun requestAllFriends(fields: String,
-                                           apiVersion: String): Result<Unit> =
+    override suspend fun requestAllFriends(
+        fields: String,
+        apiVersion: String
+    ): Result<Unit> =
         withContext(ioDispatcher) {
-            when (val getFriendsResult = vkNetworkDataSource.getFriendsFromVK(fields,
-                apiVersion)) {
+            when (val getFriendsResult = vkNetworkDataSource.getFriendsFromVK(
+                fields,
+                apiVersion
+            )) {
                 is Result.Success -> {
                     Timber.d("requestFriends: ${getFriendsResult.data}")
                     val friends = getFriendsResult.data.response?.items?.map { it.toEntity() }
-                    friends?.let { vkLocalDataSource.insertAllFriends(it) }
+                    Timber.d("requestFriends: $friends")
+                    friends?.let {
+                        for (i in friends.indices) {
+                            vkLocalDataSource.insertAllFriends(
+                                friends.map { it.id }[i],
+                                friends.map { it.firstName }[i],
+                                friends.map { it.lastName }[i],
+                                friends.map { it.photo }[i]
+                            )
+                        }
+                    }
                     Result.Success(Unit)
                 }
                 is Result.Error -> {
@@ -69,25 +85,31 @@ class VkDefaultRepository @Inject constructor(
             }
         }
 
+    override suspend fun updateFriend(friend: Friend) = withContext(ioDispatcher) {
+        vkLocalDataSource.updateFriend(friend)
+    }
+
     override suspend fun deleteAllFriends() = withContext(ioDispatcher) {
         vkLocalDataSource.deleteAllFriends()
     }
 
-    override suspend fun getOnlineFriendsIds(apiVersion: String): Result<List<Int>> = withContext(ioDispatcher) {
-        when (val getFriendsResultIds = vkNetworkDataSource.getFriendsOnlineIds(apiVersion)) {
-            is Result.Success -> {
-                val onlineIds = getFriendsResultIds.data
-                Timber.d("Список онлайн ids: $onlineIds")
-                Result.Success(onlineIds)
+    override suspend fun getOnlineFriendsIds(apiVersion: String): Result<List<Int>> =
+        withContext(ioDispatcher) {
+            when (val getFriendsResultIds = vkNetworkDataSource.getFriendsOnlineIds(apiVersion)) {
+                is Result.Success -> {
+                    val onlineIds = getFriendsResultIds.data
+                    Timber.d("Список онлайн ids: $onlineIds")
+                    Result.Success(onlineIds)
+                }
+                is Result.Error -> Result.Error(getFriendsResultIds.exception)
             }
-            is Result.Error -> Result.Error(getFriendsResultIds.exception)
         }
-    }
 
     override suspend fun getOnlineFriends(onlineIds: List<Int>): List<Friend> =
         withContext(ioDispatcher) {
             vkLocalDataSource.getOnlineFriends(onlineIds)
         }
+
 }
 
 

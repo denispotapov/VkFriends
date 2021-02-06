@@ -8,7 +8,7 @@ import com.example.vkmessenger.util.AUTHORIZED_USER_ID
 data class User(
     val firstName: String,
     val lastName: String,
-    val photo: String
+    val photo: String,
 ) {
 
     @PrimaryKey

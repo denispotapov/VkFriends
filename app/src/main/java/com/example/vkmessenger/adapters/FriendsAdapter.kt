@@ -3,7 +3,6 @@ package com.example.vkmessenger.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -31,6 +30,7 @@ class FriendsAdapter(private val context: Context) :
         Glide.with(context)
             .load(getItem(position).photo)
             .into(holder.photoFriend)
+        holder.switchTracking.isChecked = getItem(position).tracking == true
     }
 
     inner class FriendsHolder(binding: FriendsItemBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -38,18 +38,21 @@ class FriendsAdapter(private val context: Context) :
         val firstName: TextView = binding.textFirstName
         val lastName: TextView = binding.textLastName
         val photoFriend: CircleImageView = binding.imageUser
-        val buttonTracking: Button = binding.buttonActivateTracking
+        val switchTracking = binding.switchTracking
 
         init {
-            buttonTracking.setOnClickListener {
+            switchTracking.setOnCheckedChangeListener { _, isChecked ->
                 val friend = getItem(adapterPosition)
-                listener?.onButtonClick(friend, adapterPosition)
+                friend.tracking = isChecked
+                listener?.onTrackStart(friend)
+
             }
         }
     }
 
     interface OnButtonClickListener {
-        fun onButtonClick(friend: Friend, position: Int)
+
+        fun onTrackStart(friend: Friend)
     }
 
     fun setOnButtonClickListener(listener: OnButtonClickListener) {
@@ -64,5 +67,5 @@ class FriendsDiffCallback : DiffUtil.ItemCallback<Friend>() {
 
     override fun areContentsTheSame(oldItem: Friend, newItem: Friend): Boolean =
         oldItem.firstName == newItem.firstName && oldItem.lastName == newItem.lastName &&
-                oldItem.photo == newItem.photo
+                oldItem.photo == newItem.photo && oldItem.tracking == newItem.tracking
 }

@@ -6,8 +6,4 @@
         android:title="@string/friends_online"
         app:showAsAction="always"/>
 
-    <item
-        android:id="@+id/stop_tracking"
-        android:title="@string/stop_tracking"
-        app:showAsAction="never"/>
 </menu>

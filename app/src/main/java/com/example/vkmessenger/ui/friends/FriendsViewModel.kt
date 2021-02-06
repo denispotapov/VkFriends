@@ -28,6 +28,12 @@ class FriendsViewModel @Inject constructor(private val vkRepository: VkRepositor
             }
         }
     }
+
+    fun updateFriend(friend: Friend) {
+        viewModelScope.launch {
+            vkRepository.updateFriend(friend)
+        }
+    }
 }
 
 

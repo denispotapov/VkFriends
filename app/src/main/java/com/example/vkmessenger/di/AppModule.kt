@@ -7,6 +7,7 @@ import com.example.vkmessenger.local.FriendsDao
 import com.example.vkmessenger.local.UserDao
 import com.example.vkmessenger.local.VkDatabase
 import com.example.vkmessenger.network.VkRetrofitApi
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineDispatcher

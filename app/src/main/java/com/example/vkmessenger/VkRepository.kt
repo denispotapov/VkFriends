@@ -19,6 +19,8 @@ interface VkRepository {
 
     suspend fun requestAllFriends(fields: String = FIELDS, apiVersion: String = API_VERSION): Result<Unit>
 
+    suspend fun updateFriend(friend: Friend)
+
     suspend fun deleteAllFriends()
 
     suspend fun getOnlineFriendsIds(apiVersion: String = API_VERSION): Result<List<Int>>

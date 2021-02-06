@@ -5,7 +5,6 @@ import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -18,11 +17,8 @@ import com.example.vkmessenger.databinding.ActivityFriendsBinding
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.service.StatusTrackingService
 import com.example.vkmessenger.ui.friendsonline.FriendsOnlineActivity
-import com.example.vkmessenger.util.JOB_ID
 import com.example.vkmessenger.util.MILLIS_IN_SECOND
 import com.example.vkmessenger.util.SECONDS_COUNT
-import com.example.vkmessenger.util.showNotificationUserOnline
-import com.google.gson.Gson
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_friends.*
 import timber.log.Timber
@@ -53,7 +49,6 @@ class FriendsActivity : DaggerAppCompatActivity() {
         friendsViewModel.requestFriends()
         observeToastMessage()
         startStatusTrackingService()
-
     }
 
     private fun initRecycler() {
@@ -69,32 +64,42 @@ class FriendsActivity : DaggerAppCompatActivity() {
     }
 
     private fun startStatusTrackingService() {
-
         friendsAdapter.setOnButtonClickListener(object : FriendsAdapter.OnButtonClickListener {
-            override fun onButtonClick(friend: Friend, position: Int) {
 
-                val bundle = PersistableBundle()
-                val friendToJobService = Friend(friend.id, friend.firstName, friend.lastName, friend.photo)
-                val gSon = Gson()
-                val json = gSon.toJson(friendToJobService)
-                bundle.putString("friend", json)
+            override fun onTrackStart(friend: Friend) {
+                friendsViewModel.updateFriend(friend)
 
-                val componentName = ComponentName(this@FriendsActivity, StatusTrackingService::class.java)
-                val info = JobInfo.Builder(JOB_ID, componentName)
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setPersisted(true)
-                    .setPeriodic(SECONDS_COUNT * MILLIS_IN_SECOND)
-                    .setExtras(bundle)
-                    .build()
+                if (friend.tracking == true) {
+                    val componentName =
+                        ComponentName(this@FriendsActivity, StatusTrackingService::class.java)
+                    val info = JobInfo.Builder(friend.id, componentName)
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                        .setPersisted(true)
+                        .setPeriodic(SECONDS_COUNT * MILLIS_IN_SECOND)
+                        .build()
 
-                val scheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-                val resultCode = scheduler.schedule(info)
-                if (resultCode == JobScheduler.RESULT_SUCCESS) {
-                    Timber.d("Job scheduled")
-                } else Timber.d("Job scheduling failed")
+                    val scheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+                    val resultCode = scheduler.schedule(info)
+                    if (resultCode == JobScheduler.RESULT_SUCCESS) {
+                        Timber.d("Job scheduled")
+                    } else Timber.d("Job scheduling failed")
 
-                Toast.makeText(this@FriendsActivity, "Служба отслеживания активирована", Toast.LENGTH_LONG).show()
-                Timber.d("OnClick: ${friend.id} + $position")
+                    Toast.makeText(
+                        this@FriendsActivity,
+                        "Служба отслеживания активна",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                } else if (friend.tracking == false) {
+                    val scheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+                    scheduler.cancel(friend.id)
+                    Timber.d("Job cancelled")
+                    Toast.makeText(
+                        this@FriendsActivity,
+                        "Служба отслеживания остановлена",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         })
     }
@@ -107,18 +112,9 @@ class FriendsActivity : DaggerAppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-
             R.id.friends_online -> {
                 val intent = Intent(this@FriendsActivity, FriendsOnlineActivity::class.java)
                 startActivity(intent)
-                return true
-            }
-
-            R.id.stop_tracking -> {
-                val scheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
-                scheduler.cancel(JOB_ID)
-                Timber.d("Job cancelled")
-                Toast.makeText(this@FriendsActivity, "Служба отслеживания остановлена", Toast.LENGTH_LONG).show()
                 return true
             }
             else -> super.onOptionsItemSelected(item)

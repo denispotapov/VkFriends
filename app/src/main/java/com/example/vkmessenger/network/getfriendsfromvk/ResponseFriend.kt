@@ -5,6 +5,7 @@ import com.example.vkmessenger.util.NO_VALUE
 import com.google.gson.annotations.SerializedName
 
 data class ResponseFriend(
+
     var id: Int?,
     @SerializedName("first_name")
     val firstName: String?,
@@ -14,7 +15,8 @@ data class ResponseFriend(
     val photo: String?
 ) {
 
-    fun toEntity() =
-        Friend(id ?: NO_VALUE, firstName.orEmpty(), lastName.orEmpty(), photo.orEmpty())
+    fun toEntity() = Friend(
+        id ?: NO_VALUE, firstName.orEmpty(), lastName.orEmpty(), photo.orEmpty()
+    )
 }
 

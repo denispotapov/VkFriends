@@ -12,7 +12,14 @@ interface VkLocalDataSource {
 
     fun getAllFriends(): Flow<List<Friend>>
 
-    suspend fun insertAllFriends(users: List<Friend>)
+    suspend fun insertAllFriends(
+        id: Int,
+        firstName: String,
+        lastName: String,
+        photo: String
+    )
+
+    suspend fun updateFriend(friend: Friend)
 
     suspend fun deleteAllFriends()
 

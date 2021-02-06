@@ -23,9 +23,23 @@ class VkRoomDataSource @Inject constructor(
 
     override fun getAllFriends(): Flow<List<Friend>> = friendsDao.getAllFriends()
 
-    override suspend fun insertAllFriends(users: List<Friend>) = withContext(ioDispatcher) {
-        friendsDao.insertAllFriends(users)
+    override suspend fun insertAllFriends(
+        id: Int,
+        firstName: String,
+        lastName: String,
+        photo: String
+    ) = withContext(ioDispatcher) {
+        friendsDao.insertAllFriends(id, firstName, lastName, photo)
     }
+
+    /*override suspend fun updateAll(id: Int, firstName: String, lastName: String, photo: String) = withContext(ioDispatcher) {
+        friendsDao.updateAll(id, firstName, lastName, photo)
+    }*/
+
+    override suspend fun updateFriend(friend: Friend) = withContext(ioDispatcher) {
+        friendsDao.updateFriend(friend)
+    }
+
 
     override suspend fun deleteAllFriends() = withContext(ioDispatcher) {
         friendsDao.deleteAllFriends()
