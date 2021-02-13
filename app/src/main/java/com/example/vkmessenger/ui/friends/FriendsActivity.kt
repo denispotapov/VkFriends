@@ -8,8 +8,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.*
 import com.example.vkmessenger.R
 import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.adapters.FriendsAdapter
@@ -107,7 +107,27 @@ class FriendsActivity : DaggerAppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val menuInflater = menuInflater
         menuInflater.inflate(R.menu.friends_menu, menu)
-        return true
+
+        val searchItem = menu?.findItem(R.id.action_search)
+        if (searchItem != null) {
+            val searchView = searchItem.actionView as SearchView
+
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    query?.let { friendsViewModel.filterFriends(it) }
+
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    newText?.let { friendsViewModel.filterFriends(it) }
+
+                    return false
+                }
+            })
+        }
+
+        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

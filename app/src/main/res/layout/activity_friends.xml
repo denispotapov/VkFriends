@@ -5,11 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="viewmodel"
             type="com.example.vkmessenger.ui.friends.FriendsViewModel" />
     </data>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -32,7 +32,7 @@
             android:id="@+id/recycler_friends"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:friends="@{viewmodel.allFriends}"
+            app:friends="@{viewmodel.resultFilteredFriends}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:layout_editor_absoluteX="65dp"
             tools:layout_editor_absoluteY="68dp" />

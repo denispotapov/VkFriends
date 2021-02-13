@@ -30,6 +30,8 @@ class FriendsOnlineActivity : DaggerAppCompatActivity() {
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
 
+    private val list: List<Friend> = listOf()
+
     private val friendsOnlineAdapter = FriendsAdapter(this@FriendsOnlineActivity)
 
     override fun onCreate(savedInstanceState: Bundle?) {

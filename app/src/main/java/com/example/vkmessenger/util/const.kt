@@ -8,6 +8,3 @@ const val MILLIS_IN_SECOND: Long = 1000
 const val SECONDS_COUNT = 30
 
 const val CHANNEL_ID = "ServiceChannel"
-const val NOTIFICATION_ID = 1
-
-const val JOB_ID = 1

@@ -23,13 +23,13 @@ abstract class AppModuleBinds {
     abstract fun bindContext(application: Application): Context
 
     @Binds
-    abstract fun bindFriendsFromVK(vkRetrofitDataSource: VkRetrofitDataSource): VkNetworkDataSource
+    abstract fun bindVkNetworkDataSource(vkRetrofitDataSource: VkRetrofitDataSource): VkNetworkDataSource
 
     @Binds
-    abstract fun bindFriendsLocalDataSource(friendsRoomDataSource: VkRoomDataSource): VkLocalDataSource
+    abstract fun bindVkLocalDataSource(friendsRoomDataSource: VkRoomDataSource): VkLocalDataSource
 
     @Binds
-    abstract fun bindFriendsRepository(friendsDefaultRepository: VkDefaultRepository): VkRepository
+    abstract fun bindVkRepository(friendsDefaultRepository: VkDefaultRepository): VkRepository
 }
 
 @Qualifier

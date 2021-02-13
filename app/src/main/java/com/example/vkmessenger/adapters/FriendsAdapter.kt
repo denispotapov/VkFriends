@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.databinding.FriendsItemBinding
 import com.example.vkmessenger.local.Friend
+import com.google.android.material.switchmaterial.SwitchMaterial
 import de.hdodenhof.circleimageview.CircleImageView
 
 class FriendsAdapter(private val context: Context) :
@@ -33,30 +34,28 @@ class FriendsAdapter(private val context: Context) :
         holder.switchTracking.isChecked = getItem(position).tracking == true
     }
 
+    interface OnButtonClickListener {
+        fun onTrackStart(friend: Friend)
+    }
+
+    fun setOnButtonClickListener(listener: OnButtonClickListener) {
+        this.listener = listener
+    }
+
     inner class FriendsHolder(binding: FriendsItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         val firstName: TextView = binding.textFirstName
         val lastName: TextView = binding.textLastName
         val photoFriend: CircleImageView = binding.imageUser
-        val switchTracking = binding.switchTracking
+        val switchTracking: SwitchMaterial = binding.switchTracking
 
         init {
             switchTracking.setOnCheckedChangeListener { _, isChecked ->
                 val friend = getItem(adapterPosition)
                 friend.tracking = isChecked
                 listener?.onTrackStart(friend)
-
             }
         }
-    }
-
-    interface OnButtonClickListener {
-
-        fun onTrackStart(friend: Friend)
-    }
-
-    fun setOnButtonClickListener(listener: OnButtonClickListener) {
-        this.listener = listener
     }
 }
 

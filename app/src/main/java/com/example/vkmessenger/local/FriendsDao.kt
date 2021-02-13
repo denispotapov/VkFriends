@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FriendsDao {
 
-    @Query("SELECT * FROM friends_table")
+    @Query("SELECT * FROM friends_table ORDER by tracking DESC")
     fun getAllFriends(): Flow<List<Friend>>
 
     suspend fun insertAllFriends(
@@ -27,7 +27,7 @@ interface FriendsDao {
     @Query("DELETE FROM friends_table")
     suspend fun deleteAllFriends()
 
-    @Query("SELECT * FROM friends_table WHERE id IN (:onlineIds)")
+    @Query("SELECT * FROM friends_table WHERE id IN (:onlineIds) ORDER by tracking DESC")
     suspend fun getOnlineFriends(onlineIds: List<Int>): List<Friend>
 
     @Query // if no update happened (i.e. the row didn't exist) then insert one
