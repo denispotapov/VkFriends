@@ -17,7 +17,7 @@ class FriendsAdapter(private val context: Context) :
     ListAdapter<Friend, FriendsAdapter.FriendsHolder>(FriendsDiffCallback()) {
 
     private lateinit var binding: FriendsItemBinding
-    private var listener: OnButtonClickListener? = null
+    private var listener: OnCheckChangedListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendsHolder {
         binding = FriendsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -34,11 +34,12 @@ class FriendsAdapter(private val context: Context) :
         holder.switchTracking.isChecked = getItem(position).tracking == true
     }
 
-    interface OnButtonClickListener {
-        fun onTrackStart(friend: Friend)
+    interface OnCheckChangedListener {
+
+        fun onCheckChanged(friend: Friend)
     }
 
-    fun setOnButtonClickListener(listener: OnButtonClickListener) {
+    fun setOnCheckChangedListener(listener: OnCheckChangedListener) {
         this.listener = listener
     }
 
@@ -53,7 +54,7 @@ class FriendsAdapter(private val context: Context) :
             switchTracking.setOnCheckedChangeListener { _, isChecked ->
                 val friend = getItem(adapterPosition)
                 friend.tracking = isChecked
-                listener?.onTrackStart(friend)
+                listener?.onCheckChanged(friend)
             }
         }
     }

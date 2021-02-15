@@ -75,10 +75,10 @@ class FriendsOnlineActivity : DaggerAppCompatActivity() {
     }
 
     private fun startStatusTrackingService() {
-        friendsOnlineAdapter.setOnButtonClickListener(object :
-            FriendsAdapter.OnButtonClickListener {
+        friendsOnlineAdapter.setOnCheckChangedListener(object :
+            FriendsAdapter.OnCheckChangedListener {
 
-            override fun onTrackStart(friend: Friend) {
+            override fun onCheckChanged(friend: Friend) {
                 friendsOnlineViewModel.updateFriend(friend)
 
                 if (friend.tracking == true) {

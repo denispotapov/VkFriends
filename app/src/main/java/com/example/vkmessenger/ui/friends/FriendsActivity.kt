@@ -17,8 +17,7 @@ import com.example.vkmessenger.databinding.ActivityFriendsBinding
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.service.StatusTrackingService
 import com.example.vkmessenger.ui.friendsonline.FriendsOnlineActivity
-import com.example.vkmessenger.util.MILLIS_IN_SECOND
-import com.example.vkmessenger.util.SECONDS_COUNT
+import com.example.vkmessenger.util.*
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_friends.*
 import timber.log.Timber
@@ -64,10 +63,11 @@ class FriendsActivity : DaggerAppCompatActivity() {
     }
 
     private fun startStatusTrackingService() {
-        friendsAdapter.setOnButtonClickListener(object : FriendsAdapter.OnButtonClickListener {
+        friendsAdapter.setOnCheckChangedListener(object : FriendsAdapter.OnCheckChangedListener {
 
-            override fun onTrackStart(friend: Friend) {
+            override fun onCheckChanged(friend: Friend) {
                 friendsViewModel.updateFriend(friend)
+                val scheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
 
                 if (friend.tracking == true) {
                     val componentName =
@@ -78,7 +78,6 @@ class FriendsActivity : DaggerAppCompatActivity() {
                         .setPeriodic(SECONDS_COUNT * MILLIS_IN_SECOND)
                         .build()
 
-                    val scheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
                     val resultCode = scheduler.schedule(info)
                     if (resultCode == JobScheduler.RESULT_SUCCESS) {
                         Timber.d("Job scheduled")
@@ -91,7 +90,6 @@ class FriendsActivity : DaggerAppCompatActivity() {
                     ).show()
 
                 } else if (friend.tracking == false) {
-                    val scheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
                     scheduler.cancel(friend.id)
                     Timber.d("Job cancelled")
                     Toast.makeText(
@@ -109,26 +107,13 @@ class FriendsActivity : DaggerAppCompatActivity() {
         menuInflater.inflate(R.menu.friends_menu, menu)
 
         val searchItem = menu?.findItem(R.id.action_search)
-        if (searchItem != null) {
-            val searchView = searchItem.actionView as SearchView
+        val searchView = searchItem.let { it?.actionView as SearchView }
 
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    query?.let { friendsViewModel.filterFriends(it) }
-
-                    return false
-                }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    newText?.let { friendsViewModel.filterFriends(it) }
-
-                    return false
-                }
-            })
-        }
+        setOnQueryTextListener(searchView, friendsViewModel)
 
         return super.onCreateOptionsMenu(menu)
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {

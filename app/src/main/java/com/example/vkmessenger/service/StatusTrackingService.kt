@@ -35,14 +35,11 @@ class StatusTrackingService : JobService() {
         Timber.d("Job сервис onStartJob запущен")
 
         interactor.getTrackingFriendsOnline()
-        observer =
-            Observer<List<Friend>> { listOnlineFriend ->
-                for (onlineFriend in listOnlineFriend) {
-                    showNotificationUserOnline(onlineFriend, onlineFriend.id)
-                    Timber.d("Job $listOnlineFriend")
-                }
-                jobFinished(params, false)
-            }
+        observer = Observer<List<Friend>> { listOnlineFriend ->
+            listOnlineFriend.forEach { showNotificationUserOnline(it, it.id) }
+            Timber.d("Job $listOnlineFriend")
+            jobFinished(params, false)
+        }
         interactor.trackingFriendsOnline.observeForever(observer)
 
         return true
@@ -53,9 +50,7 @@ class StatusTrackingService : JobService() {
         return false
     }
 
-    private fun showNotificationUserOnline(friend: Friend, noteId: Int) {
-        val scope = CoroutineScope(Dispatchers.IO)
-
+    private fun showNotificationUserOnline(friend: Friend, notificationId: Int) {
         val openActivityIntent = Intent(this, FriendsOnlineActivity::class.java)
         val openActivityPendingIntent = PendingIntent.getActivity(
             this, 0, openActivityIntent, 0
@@ -73,7 +68,7 @@ class StatusTrackingService : JobService() {
             .setAutoCancel(true)
             .setContentIntent(openActivityPendingIntent)
 
-        scope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val userPhoto =
                 Glide.with(this@StatusTrackingService)
                     .asBitmap()
@@ -84,7 +79,7 @@ class StatusTrackingService : JobService() {
             withContext(Dispatchers.Main) {
                 notification.setLargeIcon(userPhoto)
                 NotificationManagerCompat.from(this@StatusTrackingService)
-                    .notify(noteId, notification.build())
+                    .notify(notificationId, notification.build())
             }
         }
     }

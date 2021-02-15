@@ -31,10 +31,7 @@ class VkRoomDataSource @Inject constructor(
     ) = withContext(ioDispatcher) {
         friendsDao.insertAllFriends(id, firstName, lastName, photo)
     }
-
-    /*override suspend fun updateAll(id: Int, firstName: String, lastName: String, photo: String) = withContext(ioDispatcher) {
-        friendsDao.updateAll(id, firstName, lastName, photo)
-    }*/
+    
 
     override suspend fun updateFriend(friend: Friend) = withContext(ioDispatcher) {
         friendsDao.updateFriend(friend)

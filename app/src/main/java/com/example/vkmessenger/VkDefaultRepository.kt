@@ -63,18 +63,10 @@ class VkDefaultRepository @Inject constructor(
                 apiVersion
             )) {
                 is Result.Success -> {
-                    Timber.d("requestFriends: ${getFriendsResult.data}")
                     val friends = getFriendsResult.data.response?.items?.map { it.toEntity() }
                     Timber.d("requestFriends: $friends")
-                    friends?.let {
-                        for (i in friends.indices) {
-                            vkLocalDataSource.insertAllFriends(
-                                friends.map { it.id }[i],
-                                friends.map { it.firstName }[i],
-                                friends.map { it.lastName }[i],
-                                friends.map { it.photo }[i]
-                            )
-                        }
+                    friends?.forEach {
+                        vkLocalDataSource.insertAllFriends(it.id, it.firstName, it.lastName, it.photo)
                     }
                     Result.Success(Unit)
                 }

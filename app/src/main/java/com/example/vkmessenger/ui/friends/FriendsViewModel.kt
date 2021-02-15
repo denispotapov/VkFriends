@@ -40,7 +40,7 @@ class FriendsViewModel @Inject constructor(private val vkRepository: VkRepositor
                     filteredList.add(it)
                 }
             }
-            filteredFriends.postValue(filteredList)
+            filteredFriends.value = filteredList
         }
     }
 
