@@ -8,9 +8,8 @@ import com.example.vkmessenger.VkRepository
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.network.Result
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRepository) :
+class FriendsOnlineViewModel(private val vkRepository: VkRepository) :
     ViewModel() {
 
     private val _friendsOnline = MutableLiveData<List<Friend>>()
@@ -29,14 +28,8 @@ class FriendsOnlineViewModel @Inject constructor(private val vkRepository: VkRep
         viewModelScope.launch {
             when (val onlineIdsResult = vkRepository.getOnlineFriendsIds()) {
                 is Result.Success -> {
-
                     _friendsOnline.value = vkRepository.getOnlineFriends(onlineIdsResult.data)
                     loading.value = true
-
-                    /*val listOnlineFriends = vkRepository.getOnlineFriends(onlineIdsResult.data)
-                    _friendsOnline.value = listOnlineFriends.filter {
-                        it.tracking == false
-                    }*/
                 }
                 is Result.Error -> {
                     _message.value = onlineIdsResult.getString()

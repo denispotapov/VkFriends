@@ -5,9 +5,8 @@ import com.example.vkmessenger.VkRepository
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.network.Result
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class FriendsViewModel @Inject constructor(private val vkRepository: VkRepository) : ViewModel() {
+class FriendsViewModel(private val vkRepository: VkRepository) : ViewModel() {
 
     private val friends = vkRepository.getAllFriends()
 

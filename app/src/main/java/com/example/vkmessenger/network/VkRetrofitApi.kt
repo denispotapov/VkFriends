@@ -28,5 +28,4 @@ interface VkRetrofitApi {
         @Query("v") apiVersion: String,
         @Query("access_token") accessToken: String
     ): Response<ResponseFriendsOnlineIds>
-
 }

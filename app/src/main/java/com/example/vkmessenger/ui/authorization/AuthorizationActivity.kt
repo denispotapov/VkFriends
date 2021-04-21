@@ -7,32 +7,26 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.vkmessenger.BuildConfig
 import com.example.vkmessenger.R
-import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.databinding.ActivityAuthorizationBinding
 import com.example.vkmessenger.ui.friends.FriendsActivity
+import com.example.vkmessenger.util.Credentials
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
-import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_authorization.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import javax.inject.Inject
 
-class AuthorizationActivity : DaggerAppCompatActivity() {
+class AuthorizationActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
-    private lateinit var authorizationViewModel: AuthorizationViewModel
+    private val authorizationViewModel: AuthorizationViewModel by viewModel()
     private lateinit var binding: ActivityAuthorizationBinding
-
-    private var tokenVK = ""
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,12 +36,9 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
 
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
 
-        authorizationViewModel =
-            ViewModelProvider(this, providerFactory).get(AuthorizationViewModel::class.java)
-
         observeToastMessage()
         loadToken()
-        if (tokenVK == "") {
+        if (Credentials.accessToken == "") {
             binding.buttonEntry.isEnabled = false
             VK.login(this, arrayListOf(VKScope.FRIENDS, VKScope.WALL, VKScope.OFFLINE))
         } else {
@@ -93,22 +84,20 @@ class AuthorizationActivity : DaggerAppCompatActivity() {
         val sPref = getSharedPreferences("token", Context.MODE_PRIVATE)
         val savedToken = sPref.getString("key", "")
         if (savedToken != null) {
-            tokenVK = savedToken
+            Credentials.accessToken = savedToken
         }
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
 
-                tokenVK = token.accessToken
+                Credentials.accessToken = token.accessToken
                 val sPref = getSharedPreferences("token", Context.MODE_PRIVATE)
                 val editPref = sPref.edit()
-                editPref.putString("key", tokenVK)
+                editPref.putString("key", Credentials.accessToken)
                 editPref.apply()
                 authorizationViewModel.onAccessTokenObtained()
 
-                Timber.d("onLogin: $tokenVK")
                 Toast.makeText(
                     this@AuthorizationActivity,
                     "Вы успешно авторизовались",

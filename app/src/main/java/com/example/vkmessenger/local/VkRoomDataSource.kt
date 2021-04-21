@@ -3,9 +3,8 @@ package com.example.vkmessenger.local
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-class VkRoomDataSource @Inject constructor(
+class VkRoomDataSource (
     private val friendsDao: FriendsDao,
     private val userDao: UserDao,
     private val ioDispatcher: CoroutineDispatcher

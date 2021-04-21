@@ -1,24 +1,29 @@
 package com.example.vkmessenger
 
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-import com.example.vkmessenger.di.DaggerAppComponent
+import com.example.vkmessenger.di.appModule
+import com.example.vkmessenger.di.serviceModule
+import com.example.vkmessenger.di.viewModelModule
 import com.example.vkmessenger.util.CHANNEL_ID
-import dagger.android.AndroidInjector
-import dagger.android.DaggerApplication
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 
-class VkApplication : DaggerApplication() {
-
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerAppComponent.builder()
-            .application(this)
-            .build()
-    }
+class VkApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        startKoin {
+            androidContext(this@VkApplication)
+            androidLogger()
+            modules(listOf(viewModelModule, appModule, serviceModule))
+        }
+
         createNotificationChannel()
     }
 

@@ -10,11 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class VkDefaultRepository @Inject constructor(
+class VkDefaultRepository (
     private val vkLocalDataSource: VkLocalDataSource,
     private val vkNetworkDataSource: VkNetworkDataSource,
     private val ioDispatcher: CoroutineDispatcher
@@ -23,12 +20,13 @@ class VkDefaultRepository @Inject constructor(
     override fun geUserInfo(): Flow<User> = vkLocalDataSource.getUserInfo()
         .flowOn(ioDispatcher)
 
-    override suspend fun requestUser(
+    override suspend fun requestUser1(
         fields: String,
-        apiVersion: String
+        apiVersion: String,
+        accessToken: String
     ): Result<Unit> =
         withContext(ioDispatcher) {
-            when (val getUserResult = vkNetworkDataSource.getUserInfo(fields, apiVersion)) {
+            when (val getUserResult = vkNetworkDataSource.getUserInfo(fields, apiVersion, accessToken)) {
                 is Result.Success -> {
                     val user = getUserResult.data.response?.firstOrNull()?.toEntity()
                     user?.let { vkLocalDataSource.insertUser(it) }
@@ -55,12 +53,14 @@ class VkDefaultRepository @Inject constructor(
 
     override suspend fun requestAllFriends(
         fields: String,
-        apiVersion: String
+        apiVersion: String,
+        accessToken: String
     ): Result<Unit> =
         withContext(ioDispatcher) {
             when (val getFriendsResult = vkNetworkDataSource.getFriendsFromVK(
                 fields,
-                apiVersion
+                apiVersion,
+                accessToken
             )) {
                 is Result.Success -> {
                     val friends = getFriendsResult.data.response?.items?.map { it.toEntity() }
@@ -85,9 +85,9 @@ class VkDefaultRepository @Inject constructor(
         vkLocalDataSource.deleteAllFriends()
     }
 
-    override suspend fun getOnlineFriendsIds(apiVersion: String): Result<List<Int>> =
+    override suspend fun getOnlineFriendsIds(apiVersion: String, accessToken: String): Result<List<Int>> =
         withContext(ioDispatcher) {
-            when (val getFriendsResultIds = vkNetworkDataSource.getFriendsOnlineIds(apiVersion)) {
+            when (val getFriendsResultIds = vkNetworkDataSource.getFriendsOnlineIds(apiVersion, accessToken)) {
                 is Result.Success -> {
                     val onlineIds = getFriendsResultIds.data
                     Timber.d("Список онлайн ids: $onlineIds")
@@ -101,7 +101,6 @@ class VkDefaultRepository @Inject constructor(
         withContext(ioDispatcher) {
             vkLocalDataSource.getOnlineFriends(onlineIds)
         }
-
 }
 
 
