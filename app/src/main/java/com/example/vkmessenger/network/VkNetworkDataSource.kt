@@ -2,8 +2,6 @@ package com.example.vkmessenger.network
 
 import com.example.vkmessenger.network.getfriendsfromvk.ResponseResultFriends
 import com.example.vkmessenger.network.getuserinfo.ResponseResultUser
-import com.example.vkmessenger.util.API_VERSION
-import com.example.vkmessenger.util.FIELDS
 
 interface VkNetworkDataSource {
 
