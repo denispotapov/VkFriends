@@ -35,11 +35,11 @@ fun provideUserDao(vkDatabase: VkDatabase): UserDao =
 fun provideFriendsDao(vkDatabase: VkDatabase): FriendsDao =
     vkDatabase.friendsDao()
 
-private fun provideDatabase(context: Context): VkDatabase {
+fun provideDatabase(context: Context): VkDatabase {
     var INSTANCE: VkDatabase? = null
 
     INSTANCE = INSTANCE ?: Room.databaseBuilder(
-        context.applicationContext,
+        context,
         VkDatabase::class.java,
         "vk_base"
     ).build()

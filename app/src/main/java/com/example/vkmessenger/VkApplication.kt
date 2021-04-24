@@ -21,7 +21,7 @@ class VkApplication : Application() {
         startKoin {
             androidContext(this@VkApplication)
             androidLogger()
-            modules(listOf(viewModelModule, appModule, serviceModule))
+            modules(listOf(appModule, serviceModule, viewModelModule))
         }
 
         createNotificationChannel()
