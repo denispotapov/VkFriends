@@ -7,30 +7,24 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.example.vkmessenger.R
-import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.adapters.FriendsAdapter
 import com.example.vkmessenger.databinding.ActivityFriendsOnlineBinding
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.service.StatusTrackingService
 import com.example.vkmessenger.util.MILLIS_IN_SECOND
 import com.example.vkmessenger.util.SECONDS_COUNT
-import dagger.android.support.DaggerAppCompatActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import javax.inject.Inject
 
-class FriendsOnlineActivity : DaggerAppCompatActivity() {
+class FriendsOnlineActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
-    private lateinit var friendsOnlineViewModel: FriendsOnlineViewModel
+    private val friendsOnlineViewModel: FriendsOnlineViewModel by viewModel()
     private lateinit var binding: ActivityFriendsOnlineBinding
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
-
-    private val list: List<Friend> = listOf()
 
     private val friendsOnlineAdapter = FriendsAdapter(this@FriendsOnlineActivity)
 
@@ -39,12 +33,8 @@ class FriendsOnlineActivity : DaggerAppCompatActivity() {
         setContentView(R.layout.activity_friends_online)
         binding = ActivityFriendsOnlineBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.viewmodel = friendsOnlineViewModel
         binding.lifecycleOwner = this
-
-        friendsOnlineViewModel =
-            ViewModelProvider(this, providerFactory).get(FriendsOnlineViewModel::class.java).also {
-                binding.viewmodel = it
-            }
 
         initRecycler()
         refreshFriendsOnlineBySwipe()

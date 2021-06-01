@@ -5,9 +5,8 @@ import com.example.vkmessenger.VkRepository
 import com.example.vkmessenger.local.User
 import com.example.vkmessenger.network.Result
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class AuthorizationViewModel @Inject constructor(private val vkRepository: VkRepository) :
+class AuthorizationViewModel(private val vkRepository: VkRepository) :
     ViewModel() {
 
     val userInfo: LiveData<User> = vkRepository.geUserInfo().asLiveData()
@@ -16,16 +15,26 @@ class AuthorizationViewModel @Inject constructor(private val vkRepository: VkRep
     val message: LiveData<String> = _message
 
     fun onAccessTokenObtained() {
-        requestUser()
+        requestUser1()
     }
 
     fun onExitItemSelected() {
         deleteAllFriends()
     }
 
-    private fun requestUser() {
+    /*private fun requestUser() {
         viewModelScope.launch {
             when (val requestUser = vkRepository.requestUser()) {
+                is Result.Error -> {
+                    _message.value = requestUser.getString()
+                }
+            }
+        }
+    }*/
+
+    private fun requestUser1() {
+        viewModelScope.launch {
+            when (val requestUser = vkRepository.requestUser1()) {
                 is Result.Error -> {
                     _message.value = requestUser.getString()
                 }

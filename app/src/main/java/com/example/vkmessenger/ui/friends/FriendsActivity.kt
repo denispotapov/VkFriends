@@ -8,26 +8,23 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.*
 import com.example.vkmessenger.R
-import com.example.vkmessenger.ViewModelProviderFactory
 import com.example.vkmessenger.adapters.FriendsAdapter
 import com.example.vkmessenger.databinding.ActivityFriendsBinding
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.service.StatusTrackingService
 import com.example.vkmessenger.ui.friendsonline.FriendsOnlineActivity
 import com.example.vkmessenger.util.*
-import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_friends.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import javax.inject.Inject
 
-class FriendsActivity : DaggerAppCompatActivity() {
+class FriendsActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
-    private lateinit var friendsViewModel: FriendsViewModel
+    private val friendsViewModel: FriendsViewModel by viewModel()
     private lateinit var binding: ActivityFriendsBinding
 
     private val friendsAdapter = FriendsAdapter(this@FriendsActivity)
@@ -37,12 +34,8 @@ class FriendsActivity : DaggerAppCompatActivity() {
         setContentView(R.layout.activity_friends)
         binding = ActivityFriendsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.viewmodel = friendsViewModel
         binding.lifecycleOwner = this
-
-        friendsViewModel =
-            ViewModelProvider(this, providerFactory).get(FriendsViewModel::class.java).also {
-                binding.viewmodel = it
-            }
 
         initRecycler()
         friendsViewModel.requestFriends()

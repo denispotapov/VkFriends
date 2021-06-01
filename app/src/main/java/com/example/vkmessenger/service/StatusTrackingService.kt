@@ -14,20 +14,17 @@ import com.example.vkmessenger.R
 import com.example.vkmessenger.local.Friend
 import com.example.vkmessenger.ui.friendsonline.FriendsOnlineActivity
 import com.example.vkmessenger.util.CHANNEL_ID
-import dagger.android.AndroidInjection
 import kotlinx.coroutines.*
+import org.koin.android.ext.android.inject
 import timber.log.Timber
-import javax.inject.Inject
 
 class StatusTrackingService : JobService() {
 
-    @Inject
-    lateinit var interactor: StatusTrackingServiceInteractor
+    private val interactor: StatusTrackingServiceInteractor by inject()
     private lateinit var observer: Observer<List<Friend>>
 
     override fun onCreate() {
         super.onCreate()
-        AndroidInjection.inject(this)
         Timber.d("Job сервис onCreate запущен")
     }
 

@@ -4,24 +4,23 @@ import com.example.vkmessenger.network.getfriendsfromvk.ResponseResultFriends
 import com.example.vkmessenger.network.getuserinfo.ResponseResultUser
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Named
-import javax.inject.Provider
+import timber.log.Timber
 
-class VkRetrofitDataSource @Inject constructor(
+class VkRetrofitDataSource (
     private val vkRetrofitApi: VkRetrofitApi,
     private val ioDispatcher: CoroutineDispatcher,
-    @Named("token") private val accessToken: Provider<String>
 ) : VkNetworkDataSource {
 
     override suspend fun getUserInfo(
         fields: String,
-        apiVersion: String
+        apiVersion: String, accessToken: String
     ): Result<ResponseResultUser> =
         withContext(ioDispatcher) {
             try {
-                val response = vkRetrofitApi.getUserInfo(fields, apiVersion, accessToken.get())
+                Timber.d("Token $accessToken")
+                val response = vkRetrofitApi.getUserInfo(fields, apiVersion, accessToken)
                 val userResponse = response.body()
+                Timber.d("Token $userResponse")
                 return@withContext if (response.isSuccessful && userResponse != null) {
                     Result.Success(userResponse)
                 } else {
@@ -42,12 +41,15 @@ class VkRetrofitDataSource @Inject constructor(
 
     override suspend fun getFriendsFromVK(
         fields: String,
-        apiVersion: String
+        apiVersion: String,
+        accessToken: String
+
     ): Result<ResponseResultFriends> =
         withContext(ioDispatcher) {
             try {
-                val response = vkRetrofitApi.getFriends(fields, apiVersion, accessToken.get())
+                val response = vkRetrofitApi.getFriends(fields, apiVersion, accessToken)
                 val friendsResponse = response.body()
+                Timber.d("Token $friendsResponse")
                 return@withContext if (response.isSuccessful && friendsResponse != null) {
                     Result.Success(friendsResponse)
                 } else {
@@ -67,10 +69,10 @@ class VkRetrofitDataSource @Inject constructor(
 
         }
 
-    override suspend fun getFriendsOnlineIds(apiVersion: String): Result<List<Int>> =
+    override suspend fun getFriendsOnlineIds(apiVersion: String, accessToken: String): Result<List<Int>> =
         withContext(ioDispatcher) {
             try {
-                val response = vkRetrofitApi.getFriendsOnlineIds(apiVersion, accessToken.get())
+                val response = vkRetrofitApi.getFriendsOnlineIds(apiVersion, accessToken)
                 val listOfIds = response.body()?.response
                 return@withContext if (response.isSuccessful && listOfIds != null) {
                     Result.Success(listOfIds)

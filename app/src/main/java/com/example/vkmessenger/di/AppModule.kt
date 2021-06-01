@@ -1,69 +1,54 @@
 package com.example.vkmessenger.di
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.room.Room
-import com.example.vkmessenger.local.FriendsDao
-import com.example.vkmessenger.local.UserDao
-import com.example.vkmessenger.local.VkDatabase
+import com.example.vkmessenger.VkDefaultRepository
+import com.example.vkmessenger.VkRepository
+import com.example.vkmessenger.local.*
+import com.example.vkmessenger.network.VkNetworkDataSource
 import com.example.vkmessenger.network.VkRetrofitApi
-import com.google.gson.GsonBuilder
-import dagger.Module
-import dagger.Provides
+import com.example.vkmessenger.network.VkRetrofitDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Named
-import javax.inject.Singleton
 
-@Module
-object AppModule {
+val appModule = module {
 
-    @Singleton
-    @Provides
-    fun provideDispatcher(): CoroutineDispatcher = Dispatchers.IO
+    single { provideDispatcher() }
+    single { provideUserDao(provideDatabase(androidContext())) }
+    single { provideFriendsDao(provideDatabase(androidContext())) }
+    single { provideVkApi() }
 
-    @Singleton
-    @Provides
-    fun provideUserDao(vkDatabase: VkDatabase): UserDao =
-        vkDatabase.userDao()
-
-    @Singleton
-    @Provides
-    fun provideFriendsDao(vkDatabase: VkDatabase): FriendsDao =
-        vkDatabase.friendsDao()
-
-    @Singleton
-    @Provides
-    fun provideDatabase(@AppContext context: Context): VkDatabase {
-        var INSTANCE: VkDatabase? = null
-
-        INSTANCE = INSTANCE ?: Room.databaseBuilder(
-            context.applicationContext,
-            VkDatabase::class.java,
-            "vk_base"
-        ).build()
-
-        return INSTANCE
-    }
-
-    @Singleton
-    @Provides
-    fun provideVkApi(): VkRetrofitApi = Retrofit.Builder()
-        .baseUrl("https://api.vk.com/method/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(VkRetrofitApi::class.java)
-
-    @Singleton
-    @Provides
-    fun provideSharedPreferences(@AppContext context: Context): SharedPreferences =
-        context.getSharedPreferences("token", Context.MODE_PRIVATE)
-
-    @Named("token")
-    @Provides
-    fun provideToken(sharedPreferences: SharedPreferences): String =
-        sharedPreferences.getString("key", "")!!
-
+    single<VkNetworkDataSource> { VkRetrofitDataSource(get(), get()) }
+    single<VkLocalDataSource> { VkRoomDataSource(get(), get(), get()) }
+    single<VkRepository> { VkDefaultRepository(get(), get(), get()) }
 }
+
+fun provideDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+fun provideUserDao(vkDatabase: VkDatabase): UserDao =
+    vkDatabase.userDao()
+
+fun provideFriendsDao(vkDatabase: VkDatabase): FriendsDao =
+    vkDatabase.friendsDao()
+
+fun provideDatabase(context: Context): VkDatabase {
+    var INSTANCE: VkDatabase? = null
+
+    INSTANCE = INSTANCE ?: Room.databaseBuilder(
+        context,
+        VkDatabase::class.java,
+        "vk_base"
+    ).build()
+
+    return INSTANCE
+}
+
+fun provideVkApi(): VkRetrofitApi = Retrofit.Builder()
+    .baseUrl("https://api.vk.com/method/")
+    .addConverterFactory(GsonConverterFactory.create())
+    .build()
+    .create(VkRetrofitApi::class.java)

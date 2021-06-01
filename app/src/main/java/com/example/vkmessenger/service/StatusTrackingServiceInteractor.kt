@@ -8,9 +8,8 @@ import com.example.vkmessenger.network.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class StatusTrackingServiceInteractor @Inject constructor(private val vkRepository: VkRepository) {
+class StatusTrackingServiceInteractor(private val vkRepository: VkRepository) {
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
